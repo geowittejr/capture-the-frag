@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capture the Frag</title>
+<style>
+  :root {
+    --bg: #f3f4f8;
+    --surface: #ffffff;
+    --surface-2: #f7f8fb;
+    --border: #e3e6ee;
+    --text: #1d2130;
+    --muted: #6b7185;
+    --accent: #5b5bf0;
+    --accent-hover: #4949d8;
+    --accent-soft: #ececfe;
+    --danger: #e0455b;
+    --success: #1f9d6b;
+    --shadow-sm: 0 1px 2px rgba(20, 24, 40, .06);
+    --shadow: 0 1px 3px rgba(20, 24, 40, .06), 0 8px 24px rgba(20, 24, 40, .06);
+    --shadow-lg: 0 20px 60px rgba(20, 24, 40, .25);
+    --radius: 12px;
+    --font: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: "Cascadia Code", "JetBrains Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12141b;
+      --surface: #1b1e27;
+      --surface-2: #222632;
+      --border: #2e3342;
+      --text: #e6e8ef;
+      --muted: #9097ab;
+      --accent: #7b7bff;
+      --accent-hover: #9393ff;
+      --accent-soft: #2a2b52;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+      --shadow: 0 1px 3px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, .6);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, select, input { font: inherit; color: inherit; }
+
+  /* ---------- App bar ---------- */
+  .appbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 9px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), #b05bf0);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+  }
+  .spacer { flex: 1; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 38px; padding: 0 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-weight: 600; font-size: 14px;
+    transition: background .15s, border-color .15s, transform .05s, box-shadow .15s;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 14px rgba(91, 91, 240, .35); }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-primary:disabled { opacity: .6; cursor: progress; }
+  .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .btn-danger:hover { filter: brightness(1.08); background: var(--danger); }
+  .btn svg { width: 16px; height: 16px; }
+
+  /* ---------- Banner ---------- */
+  .banner {
+    display: none;
+    margin: 16px auto 0;
+    max-width: 860px; width: calc(100% - 48px);
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #fff4e5; color: #8a4b00; border: 1px solid #ffd8a8;
+    font-size: 14px;
+  }
+  @media (prefers-color-scheme: dark) { .banner { background: #3a2a12; color: #ffcf8a; border-color: #5c4318; } }
+  .banner.show { display: block; }
+
+  /* ---------- Workspace ---------- */
+  main { flex: 1; padding: 24px 24px 48px; }
+  .doc-shell { max-width: 860px; margin: 0 auto; }
+
+  .doc-header { margin-bottom: 14px; }
+  .title-field {
+    display: flex; align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 6px 4px 16px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .title-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .title-field svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+  #docTitle {
+    flex: 1; min-width: 0;
+    border: 0; outline: 0; background: transparent;
+    font-size: 20px; font-weight: 650; letter-spacing: -.01em;
+    padding: 10px 10px;
+  }
+  #docTitle::placeholder { color: var(--muted); font-weight: 500; }
+  .ext-chip {
+    flex: none;
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 6px 10px; border-radius: 8px;
+    user-select: none;
+  }
+  .title-hint { margin: 8px 4px 0; font-size: 12.5px; color: var(--muted); }
+  .title-hint code { font-family: var(--mono); color: var(--accent); }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    position: sticky; top: 63px; z-index: 10;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+    padding: 6px 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .tb-group { display: flex; align-items: center; gap: 2px; }
+  .tb-sep { width: 1px; height: 24px; background: var(--border); margin: 0 6px; }
+  .tb-btn {
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border: 0; border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 15px;
+    transition: background .12s, color .12s;
+  }
+  .tb-btn:hover { background: var(--surface-2); }
+  .tb-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .tb-btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+  .tb-btn svg { width: 18px; height: 18px; }
+  .tb-btn .glyph-b { font-weight: 800; }
+  .tb-btn .glyph-i { font-style: italic; font-family: Georgia, serif; font-weight: 600; }
+  .tb-btn .glyph-s { text-decoration: line-through; font-weight: 600; }
+  .tb-select {
+    height: 34px; min-width: 150px;
+    padding: 0 30px 0 10px;
+    border: 1px solid transparent; border-radius: 8px;
+    background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a90a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+    appearance: none; -webkit-appearance: none;
+    cursor: pointer; font-size: 14px; font-weight: 500;
+  }
+  .tb-select:hover { border-color: var(--border); }
+  .tb-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ---------- Editor page ---------- */
+  .page {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: var(--shadow);
+  }
+  #editor {
+    min-height: 60vh;
+    padding: 40px 56px 56px;
+    outline: none;
+    font-size: 16px;
+    line-height: 1.7;
+    word-wrap: break-word;
+    caret-color: var(--accent);
+  }
+  @media (max-width: 640px) { #editor { padding: 28px 22px 40px; } main { padding: 16px 12px 40px; } }
+  #editor.is-empty::before {
+    content: attr(data-placeholder);
+    color: var(--muted);
+    position: absolute;
+    pointer-events: none;
+  }
+  #editor > :first-child { margin-top: 0; }
+  #editor p { margin: 0 0 .9em; }
+  #editor h1 { font-size: 2em; line-height: 1.25; margin: .9em 0 .4em; letter-spacing: -.02em; }
+  #editor h2 { font-size: 1.5em; line-height: 1.3; margin: .9em 0 .4em; letter-spacing: -.01em; }
+  #editor h3 { font-size: 1.22em; line-height: 1.35; margin: .9em 0 .4em; }
+  #editor blockquote {
+    margin: 0 0 .9em; padding: 4px 0 4px 18px;
+    border-left: 4px solid var(--accent);
+    color: var(--muted);
+  }
+  #editor blockquote p:last-child { margin-bottom: 0; }
+  #editor pre {
+    margin: 0 0 .9em; padding: 14px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: var(--mono); font-size: 14px; line-height: 1.55;
+    white-space: pre-wrap;
+  }
+  #editor code {
+    font-family: var(--mono); font-size: .88em;
+    background: var(--accent-soft); color: var(--accent);
+    padding: .12em .4em; border-radius: 6px;
+  }
+  #editor pre code { background: none; color: inherit; padding: 0; }
+  #editor ul, #editor ol { margin: 0 0 .9em; padding-left: 1.6em; }
+  #editor li { margin: .2em 0; }
+  #editor li > p { margin: 0; }
+  #editor a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  #editor hr { border: 0; border-top: 2px solid var(--border); margin: 1.6em 0; }
+
+  /* ---------- Status bar ---------- */
+  .statusbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px;
+    margin-top: 14px; padding: 0 4px;
+    font-size: 13px; color: var(--muted);
+  }
+  .statusbar .item { display: inline-flex; align-items: center; gap: 7px; }
+  .statusbar svg { width: 15px; height: 15px; }
+  .folder-path {
+    font-family: var(--mono); font-size: 12.5px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 6px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+  .dot.dirty { background: #f0a020; }
+
+  /* ---------- Dialog ---------- */
+  dialog {
+    border: 0; padding: 0;
+    border-radius: 16px;
+    background: var(--surface); color: var(--text);
+    box-shadow: var(--shadow-lg);
+    width: min(440px, calc(100% - 32px));
+  }
+  dialog::backdrop { background: rgba(12, 14, 22, .45); backdrop-filter: blur(3px); }
+  dialog[open] { animation: pop .16s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+  .dlg-body { padding: 24px 24px 8px; }
+  .dlg-title { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  .dlg-msg { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+  .dlg-msg code { font-family: var(--mono); color: var(--text); }
+  .dlg-input {
+    width: 100%; margin-top: 14px;
+    height: 40px; padding: 0 12px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface-2);
+    outline: none;
+  }
+  .dlg-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 24px 22px; }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed; left: 50%; bottom: 28px;
+    transform: translate(-50%, 20px);
+    opacity: 0; pointer-events: none;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: #1d2130; color: #fff;
+    font-size: 14px; font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    transition: opacity .2s, transform .2s;
+    z-index: 50;
+    max-width: calc(100% - 32px);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast .t-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex: none; }
+  .toast.error .t-dot { background: var(--danger); }
+  .toast code { font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h12l-2 4 2 4H4"/></svg>
+    </div>
+    <span>Capture the Frag</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="btnNew" type="button" title="New document">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M12 12v6M9 15h6"/></svg>
+    New
+  </button>
+  <button class="btn btn-primary" id="btnSave" type="button" title="Save (Ctrl+S)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+    Save
+  </button>
+</header>
+
+<div class="banner" id="unsupported" role="alert">
+  This browser can't save into the app folder. Open Capture the Frag in <strong>Chrome</strong> or <strong>Edge</strong> to save documents.
+</div>
+
+<main>
+  <div class="doc-shell">
+
+    <div class="doc-header">
+      <label class="title-field" for="docTitle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+        <input id="docTitle" type="text" value="document-01" placeholder="Type a document name" spellcheck="false" autocomplete="off" maxlength="120" aria-describedby="titleHint">
+        <span class="ext-chip" aria-hidden="true">.md</span>
+      </label>
+      <p class="title-hint" id="titleHint">The <code>.md</code> extension is added automatically.</p>
+    </div>
+
+    <div class="toolbar" role="toolbar" aria-label="Formatting">
+      <div class="tb-group">
+        <button class="tb-btn" type="button" data-cmd="undo" title="Undo (Ctrl+Z)" aria-label="Undo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+        </button>
+        <button class="tb-btn" type="button" data-cmd="redo" title="Redo (Ctrl+Y)" aria-label="Redo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+        </button>
+      </div>
+      <div class="tb-sep"></div>
+      <div class="tb-group">
+        <select class="tb-select" id="blockStyle" aria-label="Text style" title="Text style">
+          <option value="p">Normal text</option>
+          <option value="h1">Heading 1</option>
+          <option value="h2">Heading 2</option>
+          <option value="h3">Heading 3</option>
+          <option value="blockquote">Quote</option>
+          <option value="pre">Code block</option>
+        </select>
+      </div>
+      <div class="tb-sep"></div>
+      <div class="tb-group">
+        <button class="tb-btn" type="button" data-toggle="bold" aria-pressed="false" title="Bold (Ctrl+B)" aria-label="Bold"><span class="glyph-b">B</span></button>
+        <button class="tb-btn" type="button" data-toggle="italic" aria-pressed="false" title="Italic (Ctrl+I)" aria-label="Italic"><span class="glyph-i">I</span></button>
+        <button class="tb-btn" type="button" data-toggle="strikeThrough" aria-pressed="false" title="Strikethrough" aria-label="Strikethrough"><span class="glyph-s">S</span></button>
+        <button class="tb-btn" type="button" data-toggle="code" aria-pressed="false" title="Inline code" aria-label="Inline code">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>
+        </button>
+        <button class="tb-btn" type="button" data-toggle="link" aria-pressed="false" title="Link" aria-label="Link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+        </button>
+      </div>
+      <div class="tb-sep"></div>
+      <div class="tb-group">
+        <button class="tb-btn" type="button" data-toggle="insertUnorderedList" aria-pressed="false" title="Bulleted list" aria-label="Bulleted list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>
+        </button>
+        <button class="tb-btn" type="button" data-toggle="insertOrderedList" aria-pressed="false" title="Numbered list" aria-label="Numbered list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 4h1v4M4 8h2" stroke-width="1.6"/><path d="M4 14.5a1 1 0 0 1 2 .3c0 .9-2 1.6-2 3.2h2" stroke-width="1.6"/></svg>
+        </button>
+        <button class="tb-btn" type="button" data-cmd="insertHorizontalRule" title="Horizontal line" aria-label="Horizontal line">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M8 7h8M8 17h8" opacity=".35"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="page">
+      <div id="editor" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Document editor" data-placeholder="Start capturing your idea…"><p><br></p></div>
+    </div>
+
+    <div class="statusbar">
+      <span class="item" title="Documents are saved to this folder next to index.html. Changing the folder isn't supported yet.">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Saves to <span class="folder-path">raw-documents/</span> in the app folder
+      </span>
+      <span class="item"><span class="dot" id="saveDot"></span><span id="saveState">No changes</span></span>
+      <span class="item" id="wordCount">0 words</span>
+    </div>
+
+  </div>
+</main>
+
+<dialog id="dialog">
+  <form method="dialog">
+    <div class="dlg-body">
+      <h2 class="dlg-title" id="dlgTitle"></h2>
+      <p class="dlg-msg" id="dlgMsg"></p>
+      <input class="dlg-input" id="dlgInput" type="text" hidden>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel" id="dlgCancel" formnovalidate>Cancel</button>
+      <button class="btn btn-primary" value="ok" id="dlgOk">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="t-dot"></span><span id="toastMsg"></span></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DEFAULT_TITLE = 'document-01';
+  const SAVE_FOLDER = 'raw-documents';
+
+  const $ = (id) => document.getElementById(id);
+  const editor = $('editor');
+  const titleInput = $('docTitle');
+  const blockSelect = $('blockStyle');
+  const btnSave = $('btnSave');
+
+  let dirty = false;
+  let saving = false;
+  let savedRange = null;
+  let titleBeforeFocus = DEFAULT_TITLE;
+
+  const fsSupported = 'showDirectoryPicker' in window;
+  if (!fsSupported) $('unsupported').classList.add('show');
+
+  document.execCommand('defaultParagraphSeparator', false, 'p');
+  document.execCommand('styleWithCSS', false, false);
+
+  /* ============================================================
+     Dirty state + status bar
+     ============================================================ */
+  function setDirty(value) {
+    dirty = value;
+    $('saveDot').classList.toggle('dirty', dirty);
+    $('saveState').textContent = dirty ? 'Unsaved changes' : (lastSavedName ? `Saved as ${lastSavedName}` : 'No changes');
+  }
+  let lastSavedName = '';
+
+  function updateEditorMeta() {
+    const text = editor.innerText.replace(/​/g, '').trim();
+    editor.classList.toggle('is-empty', text === '' && !editor.querySelector('hr, ul, ol, pre, blockquote, h1, h2, h3'));
+    const words = text ? text.split(/\s+/).length : 0;
+    $('wordCount').textContent = `${words} word${words === 1 ? '' : 's'}`;
+  }
+
+  window.addEventListener('beforeunload', (e) => {
+    if (dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  /* ============================================================
+     Title textbox
+     ============================================================ */
+  const INVALID_CHARS = /[\\/:*?"<>|\u0000-\u001f]/g;
+
+  function cleanTitle(value) {
+    return value
+      .replace(INVALID_CHARS, '')
+      .trim()
+      .replace(/\.md$/i, '')
+      .replace(/[. ]+$/, '')
+      .trim();
+  }
+
+  function currentTitle() {
+    return cleanTitle(titleInput.value) || titleBeforeFocus || DEFAULT_TITLE;
+  }
+
+  function fileName() { return `${currentTitle()}.md`; }
+
+  titleInput.addEventListener('focus', () => {
+    titleBeforeFocus = cleanTitle(titleInput.value) || titleBeforeFocus || DEFAULT_TITLE;
+    titleInput.value = '';
+  });
+
+  titleInput.addEventListener('input', () => {
+    if (INVALID_CHARS.test(titleInput.value)) {
+      const pos = titleInput.selectionStart;
+      const before = titleInput.value.length;
+      titleInput.value = titleInput.value.replace(INVALID_CHARS, '');
+      const p = Math.max(0, pos - (before - titleInput.value.length));
+      titleInput.setSelectionRange(p, p);
+    }
+    INVALID_CHARS.lastIndex = 0;
+  });
+
+  titleInput.addEventListener('blur', () => {
+    const value = cleanTitle(titleInput.value);
+    titleInput.value = value || titleBeforeFocus;
+    if (value && value !== titleBeforeFocus) setDirty(true);
+    titleBeforeFocus = titleInput.value;
+  });
+
+  titleInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); editor.focus(); }
+    if (e.key === 'Escape') { e.preventDefault(); titleInput.value = ''; editor.focus(); }
+  });
+
+  /* ============================================================
+     Selection tracking + toolbar state
+     ============================================================ */
+  function selectionInEditor() {
+    const sel = window.getSelection();
+    return sel.rangeCount > 0 && editor.contains(sel.anchorNode);
+  }
+
+  function restoreSelection() {
+    editor.focus();
+    if (savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+    }
+  }
+
+  function closestInEditor(node, selector) {
+    let el = node && (node.nodeType === 1 ? node : node.parentElement);
+    while (el && el !== editor) {
+      if (el.matches(selector)) return el;
+      el = el.parentElement;
+    }
+    return null;
+  }
+
+  function currentBlockType() {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return 'p';
+    const node = sel.anchorNode;
+    if (closestInEditor(node, 'pre')) return 'pre';
+    const h = closestInEditor(node, 'h1, h2, h3');
+    if (h) return h.tagName.toLowerCase();
+    if (closestInEditor(node, 'blockquote')) return 'blockquote';
+    return 'p';
+  }
+
+  function updateToolbar() {
+    if (!selectionInEditor()) return;
+    const anchor = window.getSelection().anchorNode;
+    document.querySelectorAll('[data-toggle]').forEach((btn) => {
+      const cmd = btn.dataset.toggle;
+      let on;
+      if (cmd === 'code') on = !!closestInEditor(anchor, 'code') && !closestInEditor(anchor, 'pre');
+      else if (cmd === 'link') on = !!closestInEditor(anchor, 'a');
+      else { try { on = document.queryCommandState(cmd); } catch { on = false; } }
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    blockSelect.value = currentBlockType();
+  }
+
+  document.addEventListener('selectionchange', () => {
+    if (selectionInEditor()) {
+      savedRange = window.getSelection().getRangeAt(0).cloneRange();
+      updateToolbar();
+    }
+  });
+
+  /* ============================================================
+     Formatting commands
+     ============================================================ */
+  function exec(cmd, value = null) {
+    restoreSelection();
+    document.execCommand(cmd, false, value);
+    afterEdit();
+  }
+
+  function afterEdit() {
+    setDirty(true);
+    updateEditorMeta();
+    updateToolbar();
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function toggleInlineCode() {
+    restoreSelection();
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+    if (closestInEditor(range.commonAncestorContainer, 'pre')) return;
+    const existing = closestInEditor(range.commonAncestorContainer, 'code');
+    if (existing) {
+      const text = document.createTextNode(existing.textContent);
+      existing.replaceWith(text);
+      const r = document.createRange();
+      r.selectNodeContents(text);
+      sel.removeAllRanges();
+      sel.addRange(r);
+    } else {
+      const text = range.collapsed ? 'code' : range.toString();
+      // Trailing zero-width space lets the caret leave the code span; it is stripped on save.
+      document.execCommand('insertHTML', false, `<code>${escapeHtml(text)}</code>​`);
+    }
+    afterEdit();
+  }
+
+  async function toggleLink() {
+    const rangeAtClick = savedRange ? savedRange.cloneRange() : null;
+    const anchor = rangeAtClick && closestInEditor(rangeAtClick.commonAncestorContainer, 'a');
+    if (anchor) {
+      restoreSelection();
+      const r = document.createRange();
+      r.selectNodeContents(anchor);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+      document.execCommand('unlink');
+      afterEdit();
+      return;
+    }
+    const url = await promptDialog('Insert link', 'Paste or type the web address.', 'https://');
+    if (!url || url === 'https://') return;
+    savedRange = rangeAtClick;
+    restoreSelection();
+    if (!rangeAtClick || rangeAtClick.collapsed) {
+      document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`);
+    } else {
+      document.execCommand('createLink', false, url);
+    }
+    afterEdit();
+  }
+
+  function setBlock(type) {
+    restoreSelection();
+    const current = currentBlockType();
+    if (current === 'blockquote' && type !== 'blockquote') {
+      document.execCommand('outdent');
+    }
+    if (type === 'blockquote' && current === 'blockquote') {
+      document.execCommand('outdent');
+    } else {
+      document.execCommand('formatBlock', false, `<${type}>`);
+    }
+    afterEdit();
+  }
+
+  document.querySelector('.toolbar').addEventListener('mousedown', (e) => {
+    // Keep the editor's selection when clicking toolbar buttons.
+    if (e.target.closest('.tb-btn')) e.preventDefault();
+  });
+
+  document.querySelectorAll('.tb-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const toggle = btn.dataset.toggle;
+      const cmd = btn.dataset.cmd;
+      if (toggle === 'code') toggleInlineCode();
+      else if (toggle === 'link') toggleLink();
+      else if (toggle) exec(toggle);
+      else if (cmd) exec(cmd);
+    });
+  });
+
+  blockSelect.addEventListener('change', () => setBlock(blockSelect.value));
+
+  editor.addEventListener('input', () => {
+    if (!editor.firstElementChild && !editor.textContent) editor.innerHTML = '<p><br></p>';
+    setDirty(true);
+    updateEditorMeta();
+  });
+
+  // Paste as plain text so the document stays clean, markdown-friendly content.
+  editor.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(); }
+  });
+
+  /* ============================================================
+     HTML -> Markdown
+     ============================================================ */
+  const BLOCK_TAGS = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'UL', 'OL', 'LI', 'HR',
+    'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'TABLE', 'FIGURE']);
+  const isBlock = (n) => n.nodeType === 1 && BLOCK_TAGS.has(n.tagName);
+
+  function escapeMd(text) {
+    return text.replace(/([\\`*_\[\]~])/g, '\\$1');
+  }
+
+  function escapeLineStart(line) {
+    return line
+      .replace(/^(\s*)(#{1,6}\s|>|[-+]\s)/, '$1\\$2')
+      .replace(/^(\s*\d+)\.(\s)/, '$1\\.$2');
+  }
+
+  function wrap(inner, mark) {
+    const m = inner.match(/^(\s*)([\s\S]*?)(\s*)$/);
+    if (!m[2]) return inner;
+    return `${m[1]}${mark}${m[2]}${mark}${m[3]}`;
+  }
+
+  function inline(node) {
+    if (node.nodeType === 3) {
+      const t = node.nodeValue.replace(/​/g, '').replace(/ /g, ' ').replace(/[ \t\r\n]+/g, ' ');
+      return escapeMd(t);
+    }
+    if (node.nodeType !== 1) return '';
+    const kids = () => Array.from(node.childNodes).map(inline).join('');
+    switch (node.tagName) {
+      case 'BR': return '  \n';
+      case 'STRONG': case 'B': return wrap(kids(), '**');
+      case 'EM': case 'I': return wrap(kids(), '*');
+      case 'S': case 'STRIKE': case 'DEL': return wrap(kids(), '~~');
+      case 'CODE': {
+        const t = node.textContent.replace(/​/g, '').replace(/ /g, ' ');
+        if (!t) return '';
+        const fence = t.includes('`') ? '``' : '`';
+        const pad = /^`|`$/.test(t) ? ' ' : '';
+        return `${fence}${pad}${t}${pad}${fence}`;
+      }
+      case 'A': {
+        const href = node.getAttribute('href') || '';
+        const label = kids();
+        return href ? `[${label || escapeMd(href)}](${href.replace(/\)/g, '%29').replace(/ /g, '%20')})` : label;
+      }
+      case 'IMG': return `![${escapeMd(node.getAttribute('alt') || '')}](${node.getAttribute('src') || ''})`;
+      default: return kids();
+    }
+  }
+
+  function finishParagraph(text) {
+    const cleaned = text.replace(/( {2}\n)+\s*$/, '').replace(/^\s+|\s+$/g, '');
+    if (!cleaned) return '';
+    return cleaned.split('\n').map((line) => escapeLineStart(line.replace(/^ (?! )/, ''))).join('\n');
+  }
+
+  function blocksOf(nodes) {
+    const out = [];
+    let buf = '';
+    const flush = () => {
+      const p = finishParagraph(buf);
+      if (p) out.push(p);
+      buf = '';
+    };
+    for (const n of nodes) {
+      if (isBlock(n)) {
+        flush();
+        const md = block(n);
+        if (md) out.push(md);
+      } else {
+        buf += inline(n);
+      }
+    }
+    flush();
+    return out;
+  }
+
+  function indentRest(text, pad) {
+    return text.split('\n').map((l, i) => (i === 0 || !l ? l : pad + l)).join('\n');
+  }
+
+  function list(el) {
+    const ordered = el.tagName === 'OL';
+    let n = parseInt(el.getAttribute('start'), 10) || 1;
+    const lines = [];
+    for (const child of el.children) {
+      if (child.tagName === 'UL' || child.tagName === 'OL') {
+        lines.push(list(child).split('\n').map((l) => (l ? '  ' + l : l)).join('\n'));
+        continue;
+      }
+      const marker = ordered ? `${n++}. ` : '- ';
+      const pad = ' '.repeat(marker.length);
+      const nested = [];
+      const content = [];
+      for (const c of child.childNodes) {
+        if (c.nodeType === 1 && (c.tagName === 'UL' || c.tagName === 'OL')) nested.push(c);
+        else content.push(c);
+      }
+      const text = blocksOf(content).join('\n');
+      lines.push(text ? marker + indentRest(text, pad) : marker.trimEnd());
+      for (const sub of nested) {
+        lines.push(list(sub).split('\n').map((l) => (l ? pad + l : l)).join('\n'));
+      }
+    }
+    return lines.join('\n');
+  }
+
+  function block(el) {
+    switch (el.tagName) {
+      case 'H1': case 'H2': case 'H3': case 'H4': case 'H5': case 'H6': {
+        const level = Number(el.tagName[1]);
+        const text = Array.from(el.childNodes).map(inline).join('').replace(/ {2}\n/g, ' ').trim();
+        return text ? `${'#'.repeat(level)} ${text}` : '';
+      }
+      case 'BLOCKQUOTE': {
+        const inner = blocksOf(el.childNodes).join('\n\n');
+        if (!inner) return '';
+        return inner.split('\n').map((l) => (l ? `> ${l}` : '>')).join('\n');
+      }
+      case 'PRE': {
+        const code = el.innerText.replace(/​/g, '').replace(/ /g, ' ').replace(/\n+$/, '');
+        const fence = code.includes('```') ? '~~~' : '```';
+        return `${fence}\n${code}\n${fence}`;
+      }
+      case 'UL': case 'OL': return list(el);
+      case 'HR': return '---';
+      default: return blocksOf(el.childNodes).join('\n\n');
+    }
+  }
+
+  function toMarkdown() {
+    const md = blocksOf(editor.childNodes).join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
+    return md ? md + '\n' : '';
+  }
+
+  /* ============================================================
+     Dialogs + toast
+     ============================================================ */
+  const dialog = $('dialog');
+
+  function openDialog({ title, message, okLabel = 'OK', danger = false, input = null }) {
+    return new Promise((resolve) => {
+      $('dlgTitle').textContent = title;
+      $('dlgMsg').innerHTML = message;
+      const ok = $('dlgOk');
+      ok.textContent = okLabel;
+      ok.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+      const field = $('dlgInput');
+      field.hidden = input === null;
+      field.value = input ?? '';
+      dialog.returnValue = 'cancel';
+      dialog.addEventListener('close', () => {
+        const confirmed = dialog.returnValue === 'ok';
+        resolve(input === null ? confirmed : (confirmed ? field.value.trim() : null));
+      }, { once: true });
+      dialog.showModal();
+      if (input !== null) { field.focus(); field.select(); } else { ok.focus(); }
+    });
+  }
+
+  const confirmDialog = (title, message, okLabel, danger = false) => openDialog({ title, message, okLabel, danger });
+  const promptDialog = (title, message, initial = '') => openDialog({ title, message, okLabel: 'Insert', input: initial });
+
+  let toastTimer;
+  function toast(message, isError = false) {
+    const t = $('toast');
+    $('toastMsg').innerHTML = message;
+    t.classList.toggle('error', isError);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 3000);
+  }
+
+  /* ============================================================
+     Folder handle persistence (IndexedDB)
+     ============================================================ */
+  const DB_NAME = 'capture-the-frag';
+  const STORE = 'handles';
+
+  function idb(mode, fn) {
+    return new Promise((resolve, reject) => {
+      const open = indexedDB.open(DB_NAME, 1);
+      open.onupgradeneeded = () => open.result.createObjectStore(STORE);
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const db = open.result;
+        const tx = db.transaction(STORE, mode);
+        const req = fn(tx.objectStore(STORE));
+        tx.oncomplete = () => { db.close(); resolve(req && req.result); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+      };
+    });
+  }
+  const idbGet = (key) => idb('readonly', (s) => s.get(key));
+  const idbSet = (key, val) => idb('readwrite', (s) => s.put(val, key));
+  const idbDel = (key) => idb('readwrite', (s) => s.delete(key));
+
+  async function ensurePermission(handle) {
+    const opts = { mode: 'readwrite' };
+    if ((await handle.queryPermission(opts)) === 'granted') return true;
+    return (await handle.requestPermission(opts)) === 'granted';
+  }
+
+  async function getAppFolder() {
+    let handle = null;
+    try { handle = await idbGet('appFolder'); } catch { handle = null; }
+
+    if (handle) {
+      if (!(await ensurePermission(handle))) {
+        toast('Saving needs permission to edit the app folder.', true);
+        return null;
+      }
+      try {
+        // Confirm the folder still exists.
+        await handle.getDirectoryHandle(SAVE_FOLDER, { create: true });
+        return handle;
+      } catch {
+        await idbDel('appFolder').catch(() => {});
+      }
+    }
+
+    const picked = await window.showDirectoryPicker({ id: 'ctf-app-folder', mode: 'readwrite' });
+    let looksRight = false;
+    try { await picked.getFileHandle('index.html'); looksRight = true; } catch { /* not found */ }
+    if (!looksRight) {
+      const useAnyway = await confirmDialog(
+        'Is this the app folder?',
+        `<code>${escapeHtml(picked.name)}</code> doesn't contain <code>index.html</code>. Documents are saved to <code>${SAVE_FOLDER}/</code> inside the Capture the Frag folder. Use this folder anyway?`,
+        'Use folder'
+      );
+      if (!useAnyway) return null;
+    }
+    await idbSet('appFolder', picked).catch(() => {});
+    return picked;
+  }
+
+  /* ============================================================
+     Save / New
+     ============================================================ */
+  async function save() {
+    if (saving) return;
+    if (!fsSupported) {
+      toast('Saving needs Chrome or Edge.', true);
+      return;
+    }
+    if (document.activeElement === titleInput) titleInput.blur();
+    saving = true;
+    btnSave.disabled = true;
+    try {
+      const appFolder = await getAppFolder();
+      if (!appFolder) return;
+      const folder = await appFolder.getDirectoryHandle(SAVE_FOLDER, { create: true });
+      const name = fileName();
+
+      let exists = false;
+      try { await folder.getFileHandle(name); exists = true; }
+      catch (err) { if (err.name !== 'NotFoundError') throw err; }
+
+      if (exists) {
+        const overwrite = await confirmDialog(
+          'Replace existing document?',
+          `<code>${escapeHtml(name)}</code> already exists in <code>${SAVE_FOLDER}/</code>. Do you want to overwrite it?`,
+          'Overwrite',
+          true
+        );
+        if (!overwrite) return;
+      }
+
+      const file = await folder.getFileHandle(name, { create: true });
+      const writable = await file.createWritable();
+      await writable.write(toMarkdown());
+      await writable.close();
+
+      lastSavedName = name;
+      setDirty(false);
+      toast(`Saved <code>${SAVE_FOLDER}/${escapeHtml(name)}</code>`);
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // picker cancelled
+      console.error(err);
+      toast(`Couldn't save: ${escapeHtml(err && err.message ? err.message : String(err))}`, true);
+    } finally {
+      saving = false;
+      btnSave.disabled = false;
+    }
+  }
+
+  async function newDocument() {
+    if (dirty) {
+      const discard = await confirmDialog(
+        'Discard changes?',
+        'This document has unsaved changes. Start a new document and discard them?',
+        'Discard',
+        true
+      );
+      if (!discard) return;
+    }
+    editor.innerHTML = '<p><br></p>';
+    titleInput.value = DEFAULT_TITLE;
+    titleBeforeFocus = DEFAULT_TITLE;
+    lastSavedName = '';
+    savedRange = null;
+    setDirty(false);
+    updateEditorMeta();
+    editor.focus();
+  }
+
+  btnSave.addEventListener('click', save);
+  $('btnNew').addEventListener('click', newDocument);
+
+  // Exposed for debugging and tests.
+  window.captureTheFrag = { toMarkdown };
+
+  updateEditorMeta();
+  setDirty(false);
+})();
+</script>
+</body>
+</html>
