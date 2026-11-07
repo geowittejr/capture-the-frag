@@ -17,10 +17,12 @@
     --accent-soft: #ececfe;
     --danger: #e0455b;
     --success: #1f9d6b;
+    --warn: #f0a020;
     --shadow-sm: 0 1px 2px rgba(20, 24, 40, .06);
-    --shadow: 0 1px 3px rgba(20, 24, 40, .06), 0 8px 24px rgba(20, 24, 40, .06);
+    --shadow: 0 1px 3px rgba(20, 24, 40, .06), 0 6px 18px rgba(20, 24, 40, .05);
     --shadow-lg: 0 20px 60px rgba(20, 24, 40, .25);
-    --radius: 12px;
+    --radius: 8px;
+    --appbar-h: 43px;
     --font: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
     --mono: "Cascadia Code", "JetBrains Mono", Consolas, "SFMono-Regular", Menlo, monospace;
     color-scheme: light dark;
@@ -37,7 +39,7 @@
       --accent-hover: #9393ff;
       --accent-soft: #2a2b52;
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
-      --shadow: 0 1px 3px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+      --shadow: 0 1px 3px rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .25);
       --shadow-lg: 0 20px 60px rgba(0, 0, 0, .6);
     }
   }
@@ -47,219 +49,285 @@
   body {
     margin: 0;
     font-family: var(--font);
+    font-size: 14px;
     color: var(--text);
     background: var(--bg);
     display: flex;
     flex-direction: column;
     -webkit-font-smoothing: antialiased;
   }
-  button, select, input { font: inherit; color: inherit; }
+  button, select, input, textarea { font: inherit; color: inherit; }
 
   /* ---------- App bar ---------- */
   .appbar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 12px 24px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 20;
+    position: sticky; top: 0; z-index: 20;
   }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; letter-spacing: -.01em; }
   .brand-mark {
-    width: 32px; height: 32px; border-radius: 9px;
+    width: 24px; height: 24px; border-radius: 7px;
     display: grid; place-items: center;
     background: linear-gradient(135deg, var(--accent), #b05bf0);
     color: #fff;
-    box-shadow: var(--shadow-sm);
   }
   .spacer { flex: 1; }
   .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    height: 38px; padding: 0 16px;
-    border-radius: 10px;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 30px; padding: 0 12px;
+    border-radius: 7px;
     border: 1px solid var(--border);
     background: var(--surface);
     cursor: pointer;
-    font-weight: 600; font-size: 14px;
-    transition: background .15s, border-color .15s, transform .05s, box-shadow .15s;
+    font-weight: 600; font-size: 13px;
+    transition: background .15s, border-color .15s, transform .05s;
   }
   .btn:hover { background: var(--surface-2); }
   .btn:active { transform: translateY(1px); }
   .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 14px rgba(91, 91, 240, .35); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
   .btn-primary:disabled { opacity: .6; cursor: progress; }
   .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
   .btn-danger:hover { filter: brightness(1.08); background: var(--danger); }
-  .btn svg { width: 16px; height: 16px; }
+  .btn svg { width: 15px; height: 15px; }
 
   /* ---------- Banner ---------- */
   .banner {
     display: none;
-    margin: 16px auto 0;
-    max-width: 860px; width: calc(100% - 48px);
-    padding: 12px 16px;
-    border-radius: 10px;
+    margin: 8px 12px 0;
+    padding: 6px 10px;
+    border-radius: 7px;
     background: #fff4e5; color: #8a4b00; border: 1px solid #ffd8a8;
-    font-size: 14px;
+    font-size: 12.5px;
   }
   @media (prefers-color-scheme: dark) { .banner { background: #3a2a12; color: #ffcf8a; border-color: #5c4318; } }
   .banner.show { display: block; }
 
   /* ---------- Workspace ---------- */
-  main { flex: 1; padding: 24px 24px 48px; }
-  .doc-shell { max-width: 860px; margin: 0 auto; }
+  main { flex: 1; padding: 8px 12px 16px; }
+  .doc-shell { max-width: 1100px; margin: 0 auto; }
 
-  .doc-header { margin-bottom: 14px; }
+  /* ---------- Doc bar (title + format + mode + status) ---------- */
+  .docbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+    margin-bottom: 8px;
+    font-size: 12.5px; color: var(--muted);
+  }
   .title-field {
     display: flex; align-items: center;
+    flex: 1 1 220px; min-width: 180px; max-width: 420px;
+    height: 30px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 4px 6px 4px 16px;
-    box-shadow: var(--shadow-sm);
+    border-radius: 7px;
+    padding: 0 3px 0 8px;
     transition: border-color .15s, box-shadow .15s;
   }
-  .title-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-  .title-field svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+  .title-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .title-field svg { width: 14px; height: 14px; color: var(--muted); flex: none; }
   #docTitle {
     flex: 1; min-width: 0;
     border: 0; outline: 0; background: transparent;
-    font-size: 20px; font-weight: 650; letter-spacing: -.01em;
-    padding: 10px 10px;
+    font-size: 14px; font-weight: 650;
+    padding: 0 6px;
+    color: var(--text);
   }
   #docTitle::placeholder { color: var(--muted); font-weight: 500; }
   .ext-chip {
     flex: none;
-    font-family: var(--mono); font-size: 13px; font-weight: 600;
-    color: var(--accent);
-    background: var(--accent-soft);
-    padding: 6px 10px; border-radius: 8px;
+    font-family: var(--mono); font-size: 11.5px; font-weight: 600;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 2px 6px; border-radius: 5px;
     user-select: none;
   }
-  .title-hint { margin: 8px 4px 0; font-size: 12.5px; color: var(--muted); }
-  .title-hint code { font-family: var(--mono); color: var(--accent); }
+  .chip-select {
+    height: 30px; padding: 0 26px 0 8px;
+    border: 1px solid var(--border); border-radius: 7px;
+    background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a90a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;
+    appearance: none; -webkit-appearance: none;
+    cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  .chip-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .seg {
+    display: inline-flex; height: 30px; padding: 2px;
+    border: 1px solid var(--border); border-radius: 7px;
+    background: var(--surface);
+  }
+  .seg button {
+    border: 0; background: transparent; cursor: pointer;
+    padding: 0 9px; border-radius: 5px;
+    font-size: 12.5px; font-weight: 600; color: var(--muted);
+  }
+  .seg button:hover { color: var(--text); }
+  .seg button[aria-checked="true"] { background: var(--accent-soft); color: var(--accent); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .status-item { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+  .folder-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    max-width: 280px;
+    height: 26px; padding: 0 8px;
+    border: 1px dashed var(--border); border-radius: 6px;
+    background: transparent; cursor: pointer;
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+  }
+  .folder-link:hover { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
+  .folder-link:disabled { cursor: default; color: var(--muted); }
+  .folder-link:disabled:hover { border-style: dashed; border-color: var(--border); background: transparent; }
+  .folder-link span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .folder-link svg, .status-item svg { width: 14px; height: 14px; flex: none; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+  .dot.dirty { background: var(--warn); }
 
   /* ---------- Toolbar ---------- */
   .toolbar {
-    position: sticky; top: 63px; z-index: 10;
-    display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
-    padding: 6px 8px;
+    position: sticky; top: var(--appbar-h); z-index: 10;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 2px;
+    min-height: 36px;
+    padding: 3px 6px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius) var(--radius) 0 0;
-    box-shadow: var(--shadow-sm);
   }
-  .tb-group { display: flex; align-items: center; gap: 2px; }
-  .tb-sep { width: 1px; height: 24px; background: var(--border); margin: 0 6px; }
+  .tb-group { display: flex; align-items: center; gap: 1px; }
+  .tb-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
   .tb-btn {
-    width: 34px; height: 34px;
-    display: grid; place-items: center;
-    border: 0; border-radius: 8px;
+    position: relative;
+    min-width: 28px; height: 28px; padding: 0 5px;
+    display: inline-grid; place-items: center;
+    border: 0; border-radius: 6px;
     background: transparent;
     cursor: pointer;
     color: var(--text);
-    font-size: 15px;
-    transition: background .12s, color .12s;
+    font-size: 13.5px;
   }
   .tb-btn:hover { background: var(--surface-2); }
   .tb-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   .tb-btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
-  .tb-btn svg { width: 18px; height: 18px; }
-  .tb-btn .glyph-b { font-weight: 800; }
-  .tb-btn .glyph-i { font-style: italic; font-family: Georgia, serif; font-weight: 600; }
-  .tb-btn .glyph-s { text-decoration: line-through; font-weight: 600; }
+  .tb-btn svg { width: 16px; height: 16px; }
+  .tb-btn .g-b { font-weight: 800; }
+  .tb-btn .g-i { font-style: italic; font-family: Georgia, serif; font-weight: 600; }
+  .tb-btn .g-u { text-decoration: underline; font-weight: 600; }
+  .tb-btn .g-s { text-decoration: line-through; font-weight: 600; }
+  .tb-btn .g-sm { font-size: 11.5px; font-weight: 700; }
+  .tb-color input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; padding: 0; border: 0; }
+  .tb-color .swatch { display: block; width: 14px; height: 3px; border-radius: 2px; margin-top: -2px; }
+  .tb-color .g-color { line-height: 1; font-weight: 700; display: grid; place-items: center; }
   .tb-select {
-    height: 34px; min-width: 150px;
-    padding: 0 30px 0 10px;
-    border: 1px solid transparent; border-radius: 8px;
-    background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a90a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+    height: 28px; min-width: 120px;
+    padding: 0 24px 0 8px;
+    border: 1px solid transparent; border-radius: 6px;
+    background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a90a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 7px center;
     appearance: none; -webkit-appearance: none;
-    cursor: pointer; font-size: 14px; font-weight: 500;
+    cursor: pointer; font-size: 13px; font-weight: 500;
   }
   .tb-select:hover { border-color: var(--border); }
-  .tb-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .tb-hint { font-size: 12px; color: var(--muted); padding: 0 6px; }
 
-  /* ---------- Editor page ---------- */
+  /* ---------- Editor host + surfaces ---------- */
   .page {
     background: var(--surface);
     border: 1px solid var(--border);
     border-top: 0;
     border-radius: 0 0 var(--radius) var(--radius);
     box-shadow: var(--shadow);
+    cursor: text;
+    min-height: calc(100vh - var(--appbar-h) - 100px);
+    display: flex; flex-direction: column;
   }
-  #editor {
-    min-height: 60vh;
-    padding: 40px 56px 56px;
+  .surface { flex: 1; width: 100%; min-height: calc(100vh - var(--appbar-h) - 100px); }
+  .surface[hidden] { display: none; }
+  .surface-live, .surface-preview {
+    padding: 16px 20px 24px;
     outline: none;
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: 15px;
+    line-height: 1.5;
     word-wrap: break-word;
     caret-color: var(--accent);
   }
-  @media (max-width: 640px) { #editor { padding: 28px 22px 40px; } main { padding: 16px 12px 40px; } }
-  #editor.is-empty::before {
+  .surface-preview { cursor: default; }
+  .surface-raw {
+    display: block;
+    padding: 14px 20px 24px;
+    border: 0; outline: none; resize: none;
+    background: transparent;
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.55;
+    tab-size: 2;
+    caret-color: var(--accent);
+  }
+  .surface-raw::placeholder { color: var(--muted); }
+  .surface-raw:focus::placeholder { color: transparent; }
+  .surface-live.is-empty::before {
     content: attr(data-placeholder);
     color: var(--muted);
     position: absolute;
     pointer-events: none;
   }
-  #editor > :first-child { margin-top: 0; }
-  #editor p { margin: 0 0 .9em; }
-  #editor h1 { font-size: 2em; line-height: 1.25; margin: .9em 0 .4em; letter-spacing: -.02em; }
-  #editor h2 { font-size: 1.5em; line-height: 1.3; margin: .9em 0 .4em; letter-spacing: -.01em; }
-  #editor h3 { font-size: 1.22em; line-height: 1.35; margin: .9em 0 .4em; }
-  #editor blockquote {
-    margin: 0 0 .9em; padding: 4px 0 4px 18px;
-    border-left: 4px solid var(--accent);
+  .surface-live.is-empty:focus::before { content: none; }
+  @media (max-width: 640px) {
+    .surface-live, .surface-preview, .surface-raw { padding: 12px 12px 20px; }
+    main { padding: 6px 6px 12px; }
+  }
+
+  /* Text format: plain, pre-wrapped */
+  .page[data-format="text"] .surface-live,
+  .page[data-format="text"] .surface-preview { white-space: pre-wrap; }
+  .page[data-format="text"].no-wrap .surface-live,
+  .page[data-format="text"].no-wrap .surface-preview { white-space: pre; overflow-x: auto; }
+  .page[data-format="text"].mono .surface-live,
+  .page[data-format="text"].mono .surface-preview { font-family: var(--mono); font-size: 13.5px; }
+
+  /* Rendered document content */
+  .doc-content > :first-child { margin-top: 0; }
+  .doc-content p { margin: 0 0 .6em; }
+  .doc-content h1, .doc-content h2, .doc-content h3,
+  .doc-content h4, .doc-content h5, .doc-content h6 { line-height: 1.25; margin: .8em 0 .3em; }
+  .doc-content h1 { font-size: 1.8em; letter-spacing: -.02em; }
+  .doc-content h2 { font-size: 1.4em; letter-spacing: -.01em; }
+  .doc-content h3 { font-size: 1.18em; }
+  .doc-content h4 { font-size: 1.05em; }
+  .doc-content h5, .doc-content h6 { font-size: 1em; color: var(--muted); }
+  .doc-content .doc-title { font-size: 2.1em; font-weight: 500; margin-top: 0; }
+  .doc-content .doc-subtitle { font-size: 1.2em; color: var(--muted); }
+  .doc-content blockquote {
+    margin: 0 0 .6em; padding: 2px 0 2px 14px;
+    border-left: 3px solid var(--accent);
     color: var(--muted);
   }
-  #editor blockquote p:last-child { margin-bottom: 0; }
-  #editor pre {
-    margin: 0 0 .9em; padding: 14px 16px;
+  .doc-content blockquote p:last-child { margin-bottom: 0; }
+  .doc-content pre {
+    margin: 0 0 .6em; padding: 10px 12px;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    font-family: var(--mono); font-size: 14px; line-height: 1.55;
+    border-radius: 6px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.5;
     white-space: pre-wrap;
   }
-  #editor code {
+  .doc-content code {
     font-family: var(--mono); font-size: .88em;
     background: var(--accent-soft); color: var(--accent);
-    padding: .12em .4em; border-radius: 6px;
+    padding: .1em .35em; border-radius: 4px;
   }
-  #editor pre code { background: none; color: inherit; padding: 0; }
-  #editor ul, #editor ol { margin: 0 0 .9em; padding-left: 1.6em; }
-  #editor li { margin: .2em 0; }
-  #editor li > p { margin: 0; }
-  #editor a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
-  #editor hr { border: 0; border-top: 2px solid var(--border); margin: 1.6em 0; }
-
-  /* ---------- Status bar ---------- */
-  .statusbar {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px;
-    margin-top: 14px; padding: 0 4px;
-    font-size: 13px; color: var(--muted);
-  }
-  .statusbar .item { display: inline-flex; align-items: center; gap: 7px; }
-  .statusbar svg { width: 15px; height: 15px; }
-  .folder-path {
-    font-family: var(--mono); font-size: 12.5px;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 2px 8px; border-radius: 6px;
-  }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
-  .dot.dirty { background: #f0a020; }
+  .doc-content pre code { background: none; color: inherit; padding: 0; }
+  .doc-content ul, .doc-content ol { margin: 0 0 .6em; padding-left: 1.5em; }
+  .doc-content li { margin: .1em 0; }
+  .doc-content li > p { margin: 0; }
+  .doc-content .task-list-item { list-style: none; margin-left: -1.2em; }
+  .doc-content .task-list-item input { margin: 0 .4em 0 0; vertical-align: -1px; }
+  .doc-content a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .doc-content hr { border: 0; border-top: 2px solid var(--border); margin: 1em 0; }
+  .doc-content img { max-width: 100%; }
+  .doc-content table { border-collapse: collapse; margin: 0 0 .6em; }
+  .doc-content th, .doc-content td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
+  .doc-content th { background: var(--surface-2); }
+  .empty-note { color: var(--muted); font-style: italic; }
 
   /* ---------- Dialog ---------- */
   dialog {
     border: 0; padding: 0;
-    border-radius: 16px;
+    border-radius: 12px;
     background: var(--surface); color: var(--text);
     box-shadow: var(--shadow-lg);
     width: min(440px, calc(100% - 32px));
@@ -267,30 +335,30 @@
   dialog::backdrop { background: rgba(12, 14, 22, .45); backdrop-filter: blur(3px); }
   dialog[open] { animation: pop .16s ease-out; }
   @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
-  .dlg-body { padding: 24px 24px 8px; }
-  .dlg-title { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
-  .dlg-msg { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+  .dlg-body { padding: 20px 20px 6px; }
+  .dlg-title { margin: 0 0 8px; font-size: 17px; font-weight: 700; }
+  .dlg-msg { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
   .dlg-msg code { font-family: var(--mono); color: var(--text); }
   .dlg-input {
-    width: 100%; margin-top: 14px;
-    height: 40px; padding: 0 12px;
-    border: 1px solid var(--border); border-radius: 10px;
+    width: 100%; margin-top: 12px;
+    height: 36px; padding: 0 10px;
+    border: 1px solid var(--border); border-radius: 8px;
     background: var(--surface-2);
     outline: none;
   }
-  .dlg-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-  .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 24px 22px; }
+  .dlg-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px 18px; }
 
   /* ---------- Toast ---------- */
   .toast {
-    position: fixed; left: 50%; bottom: 28px;
+    position: fixed; left: 50%; bottom: 24px;
     transform: translate(-50%, 20px);
     opacity: 0; pointer-events: none;
     display: flex; align-items: center; gap: 10px;
-    padding: 12px 18px;
-    border-radius: 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
     background: #1d2130; color: #fff;
-    font-size: 14px; font-weight: 500;
+    font-size: 13.5px; font-weight: 500;
     box-shadow: var(--shadow-lg);
     transition: opacity .2s, transform .2s;
     z-index: 50;
@@ -304,10 +372,10 @@
 </head>
 <body>
 
-<header class="appbar">
+<header class="appbar" id="appbar">
   <div class="brand">
     <div class="brand-mark" aria-hidden="true">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h12l-2 4 2 4H4"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4"/><path d="M4 4h12l-2 4 2 4H4"/></svg>
     </div>
     <span>Capture the Frag</span>
   </div>
@@ -322,80 +390,37 @@
   </button>
 </header>
 
-<div class="banner" id="unsupported" role="alert">
-  This browser can't save into the app folder. Open Capture the Frag in <strong>Chrome</strong> or <strong>Edge</strong> to save documents.
+<div class="banner" id="unsupported" role="note">
+  This browser can't pick a save folder, so documents download to your browser's downloads folder. Use <strong>Chrome</strong> or <strong>Edge</strong> to save straight into a folder you choose.
 </div>
 
 <main>
   <div class="doc-shell">
 
-    <div class="doc-header">
+    <!-- Doc bar: title, format, view mode, save folder, save state, word count -->
+    <div class="docbar">
       <label class="title-field" for="docTitle">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
-        <input id="docTitle" type="text" value="document-01" placeholder="Type a document name" spellcheck="false" autocomplete="off" maxlength="120" aria-describedby="titleHint">
-        <span class="ext-chip" aria-hidden="true">.md</span>
+        <input id="docTitle" type="text" value="document-01" placeholder="Document name" spellcheck="false" autocomplete="off" maxlength="120">
+        <span class="ext-chip" id="extChip">.md</span>
       </label>
-      <p class="title-hint" id="titleHint">The <code>.md</code> extension is added automatically.</p>
+      <select class="chip-select" id="formatSelect" aria-label="Document format" title="Document format"></select>
+      <div class="seg" id="modeSwitch" role="radiogroup" aria-label="View mode">
+        <button type="button" role="radio" data-mode="preview" aria-checked="false" title="Preview: formatted, read-only (Ctrl+Alt+1)">Preview</button>
+        <button type="button" role="radio" data-mode="edit" aria-checked="false" title="Edit: plain source text (Ctrl+Alt+2)">Edit</button>
+        <button type="button" role="radio" data-mode="live" aria-checked="true" title="Preview/Edit: edit the formatted output inline (Ctrl+Alt+3)">Preview/Edit</button>
+      </div>
+      <div class="spacer"></div>
+      <button type="button" class="folder-link" id="folderLink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span id="folderName">Choose save folder…</span>
+      </button>
+      <span class="status-item"><span class="dot" id="saveDot"></span><span id="saveState">No changes</span></span>
+      <span class="status-item" id="wordCount">0 words</span>
     </div>
 
-    <div class="toolbar" role="toolbar" aria-label="Formatting">
-      <div class="tb-group">
-        <button class="tb-btn" type="button" data-cmd="undo" title="Undo (Ctrl+Z)" aria-label="Undo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
-        </button>
-        <button class="tb-btn" type="button" data-cmd="redo" title="Redo (Ctrl+Y)" aria-label="Redo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
-        </button>
-      </div>
-      <div class="tb-sep"></div>
-      <div class="tb-group">
-        <select class="tb-select" id="blockStyle" aria-label="Text style" title="Text style">
-          <option value="p">Normal text</option>
-          <option value="h1">Heading 1</option>
-          <option value="h2">Heading 2</option>
-          <option value="h3">Heading 3</option>
-          <option value="blockquote">Quote</option>
-          <option value="pre">Code block</option>
-        </select>
-      </div>
-      <div class="tb-sep"></div>
-      <div class="tb-group">
-        <button class="tb-btn" type="button" data-toggle="bold" aria-pressed="false" title="Bold (Ctrl+B)" aria-label="Bold"><span class="glyph-b">B</span></button>
-        <button class="tb-btn" type="button" data-toggle="italic" aria-pressed="false" title="Italic (Ctrl+I)" aria-label="Italic"><span class="glyph-i">I</span></button>
-        <button class="tb-btn" type="button" data-toggle="strikeThrough" aria-pressed="false" title="Strikethrough" aria-label="Strikethrough"><span class="glyph-s">S</span></button>
-        <button class="tb-btn" type="button" data-toggle="code" aria-pressed="false" title="Inline code" aria-label="Inline code">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>
-        </button>
-        <button class="tb-btn" type="button" data-toggle="link" aria-pressed="false" title="Link" aria-label="Link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
-        </button>
-      </div>
-      <div class="tb-sep"></div>
-      <div class="tb-group">
-        <button class="tb-btn" type="button" data-toggle="insertUnorderedList" aria-pressed="false" title="Bulleted list" aria-label="Bulleted list">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg>
-        </button>
-        <button class="tb-btn" type="button" data-toggle="insertOrderedList" aria-pressed="false" title="Numbered list" aria-label="Numbered list">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 4h1v4M4 8h2" stroke-width="1.6"/><path d="M4 14.5a1 1 0 0 1 2 .3c0 .9-2 1.6-2 3.2h2" stroke-width="1.6"/></svg>
-        </button>
-        <button class="tb-btn" type="button" data-cmd="insertHorizontalRule" title="Horizontal line" aria-label="Horizontal line">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M8 7h8M8 17h8" opacity=".35"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="page">
-      <div id="editor" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Document editor" data-placeholder="Start capturing your idea…"><p><br></p></div>
-    </div>
-
-    <div class="statusbar">
-      <span class="item" title="Documents are saved to this folder next to index.html. Changing the folder isn't supported yet.">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-        Saves to <span class="folder-path">raw-documents/</span> in the app folder
-      </span>
-      <span class="item"><span class="dot" id="saveDot"></span><span id="saveState">No changes</span></span>
-      <span class="item" id="wordCount">0 words</span>
-    </div>
+    <div class="toolbar" id="toolbar" role="toolbar" aria-label="Formatting"></div>
+    <div class="page" id="editorHost"></div>
 
   </div>
 </main>
@@ -420,305 +445,223 @@
 (() => {
   'use strict';
 
+  /* ==========================================================================
+     1. CONFIG
+     App-wide constants. Change defaults here.
+     ========================================================================== */
   const DEFAULT_TITLE = 'document-01';
-  const SAVE_FOLDER = 'raw-documents';
+  const DEFAULT_FORMAT = 'markdown';    // new documents always start as Markdown
+  const DEFAULT_MODE = 'live';          // 'preview' | 'edit' | 'live' (Preview/Edit)
+  const MODES = ['preview', 'edit', 'live'];
+  const IDB_NAME = 'capture-the-frag';
+  const IDB_STORE = 'handles';
+  const IDB_FOLDER_KEY = 'saveFolder';
+  const LS_FOLDER_NAME = 'ctf.saveFolderName';
 
+  /* ==========================================================================
+     2. UTILITIES
+     Small helpers with no app state.
+     ========================================================================== */
   const $ = (id) => document.getElementById(id);
-  const editor = $('editor');
-  const titleInput = $('docTitle');
-  const blockSelect = $('blockStyle');
-  const btnSave = $('btnSave');
-
-  let dirty = false;
-  let saving = false;
-  let savedRange = null;
-  let titleBeforeFocus = DEFAULT_TITLE;
-
-  const fsSupported = 'showDirectoryPicker' in window;
-  if (!fsSupported) $('unsupported').classList.add('show');
-
-  document.execCommand('defaultParagraphSeparator', false, 'p');
-  document.execCommand('styleWithCSS', false, false);
-
-  /* ============================================================
-     Dirty state + status bar
-     ============================================================ */
-  function setDirty(value) {
-    dirty = value;
-    $('saveDot').classList.toggle('dirty', dirty);
-    $('saveState').textContent = dirty ? 'Unsaved changes' : (lastSavedName ? `Saved as ${lastSavedName}` : 'No changes');
-  }
-  let lastSavedName = '';
-
-  function updateEditorMeta() {
-    const text = editor.innerText.replace(/​/g, '').trim();
-    editor.classList.toggle('is-empty', text === '' && !editor.querySelector('hr, ul, ol, pre, blockquote, h1, h2, h3'));
-    const words = text ? text.split(/\s+/).length : 0;
-    $('wordCount').textContent = `${words} word${words === 1 ? '' : 's'}`;
-  }
-
-  window.addEventListener('beforeunload', (e) => {
-    if (dirty) { e.preventDefault(); e.returnValue = ''; }
-  });
-
-  /* ============================================================
-     Title textbox
-     ============================================================ */
-  const INVALID_CHARS = /[\\/:*?"<>|\u0000-\u001f]/g;
-
-  function cleanTitle(value) {
-    return value
-      .replace(INVALID_CHARS, '')
-      .trim()
-      .replace(/\.md$/i, '')
-      .replace(/[. ]+$/, '')
-      .trim();
-  }
-
-  function currentTitle() {
-    return cleanTitle(titleInput.value) || titleBeforeFocus || DEFAULT_TITLE;
-  }
-
-  function fileName() { return `${currentTitle()}.md`; }
-
-  titleInput.addEventListener('focus', () => {
-    titleBeforeFocus = cleanTitle(titleInput.value) || titleBeforeFocus || DEFAULT_TITLE;
-    titleInput.value = '';
-  });
-
-  titleInput.addEventListener('input', () => {
-    if (INVALID_CHARS.test(titleInput.value)) {
-      const pos = titleInput.selectionStart;
-      const before = titleInput.value.length;
-      titleInput.value = titleInput.value.replace(INVALID_CHARS, '');
-      const p = Math.max(0, pos - (before - titleInput.value.length));
-      titleInput.setSelectionRange(p, p);
-    }
-    INVALID_CHARS.lastIndex = 0;
-  });
-
-  titleInput.addEventListener('blur', () => {
-    const value = cleanTitle(titleInput.value);
-    titleInput.value = value || titleBeforeFocus;
-    if (value && value !== titleBeforeFocus) setDirty(true);
-    titleBeforeFocus = titleInput.value;
-  });
-
-  titleInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); editor.focus(); }
-    if (e.key === 'Escape') { e.preventDefault(); titleInput.value = ''; editor.focus(); }
-  });
-
-  /* ============================================================
-     Selection tracking + toolbar state
-     ============================================================ */
-  function selectionInEditor() {
-    const sel = window.getSelection();
-    return sel.rangeCount > 0 && editor.contains(sel.anchorNode);
-  }
-
-  function restoreSelection() {
-    editor.focus();
-    if (savedRange) {
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(savedRange);
-    }
-  }
-
-  function closestInEditor(node, selector) {
-    let el = node && (node.nodeType === 1 ? node : node.parentElement);
-    while (el && el !== editor) {
-      if (el.matches(selector)) return el;
-      el = el.parentElement;
-    }
-    return null;
-  }
-
-  function currentBlockType() {
-    const sel = window.getSelection();
-    if (!sel.rangeCount) return 'p';
-    const node = sel.anchorNode;
-    if (closestInEditor(node, 'pre')) return 'pre';
-    const h = closestInEditor(node, 'h1, h2, h3');
-    if (h) return h.tagName.toLowerCase();
-    if (closestInEditor(node, 'blockquote')) return 'blockquote';
-    return 'p';
-  }
-
-  function updateToolbar() {
-    if (!selectionInEditor()) return;
-    const anchor = window.getSelection().anchorNode;
-    document.querySelectorAll('[data-toggle]').forEach((btn) => {
-      const cmd = btn.dataset.toggle;
-      let on;
-      if (cmd === 'code') on = !!closestInEditor(anchor, 'code') && !closestInEditor(anchor, 'pre');
-      else if (cmd === 'link') on = !!closestInEditor(anchor, 'a');
-      else { try { on = document.queryCommandState(cmd); } catch { on = false; } }
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    });
-    blockSelect.value = currentBlockType();
-  }
-
-  document.addEventListener('selectionchange', () => {
-    if (selectionInEditor()) {
-      savedRange = window.getSelection().getRangeAt(0).cloneRange();
-      updateToolbar();
-    }
-  });
-
-  /* ============================================================
-     Formatting commands
-     ============================================================ */
-  function exec(cmd, value = null) {
-    restoreSelection();
-    document.execCommand(cmd, false, value);
-    afterEdit();
-  }
-
-  function afterEdit() {
-    setDirty(true);
-    updateEditorMeta();
-    updateToolbar();
-  }
 
   function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  function toggleInlineCode() {
-    restoreSelection();
-    const sel = window.getSelection();
-    if (!sel.rangeCount) return;
-    const range = sel.getRangeAt(0);
-    if (closestInEditor(range.commonAncestorContainer, 'pre')) return;
-    const existing = closestInEditor(range.commonAncestorContainer, 'code');
-    if (existing) {
-      const text = document.createTextNode(existing.textContent);
-      existing.replaceWith(text);
-      const r = document.createRange();
-      r.selectNodeContents(text);
-      sel.removeAllRanges();
-      sel.addRange(r);
-    } else {
-      const text = range.collapsed ? 'code' : range.toString();
-      // Trailing zero-width space lets the caret leave the code span; it is stripped on save.
-      document.execCommand('insertHTML', false, `<code>${escapeHtml(text)}</code>​`);
-    }
-    afterEdit();
-  }
+  // localStorage can throw (private mode, blocked storage) — never let it break the app.
+  const safeStorage = {
+    get(key) { try { return localStorage.getItem(key); } catch { return null; } },
+    set(key, value) { try { localStorage.setItem(key, value); } catch { /* ignore */ } },
+    remove(key) { try { localStorage.removeItem(key); } catch { /* ignore */ } },
+  };
 
-  async function toggleLink() {
-    const rangeAtClick = savedRange ? savedRange.cloneRange() : null;
-    const anchor = rangeAtClick && closestInEditor(rangeAtClick.commonAncestorContainer, 'a');
-    if (anchor) {
-      restoreSelection();
-      const r = document.createRange();
-      r.selectNodeContents(anchor);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(r);
-      document.execCommand('unlink');
-      afterEdit();
-      return;
-    }
-    const url = await promptDialog('Insert link', 'Paste or type the web address.', 'https://');
-    if (!url || url === 'https://') return;
-    savedRange = rangeAtClick;
-    restoreSelection();
-    if (!rangeAtClick || rangeAtClick.collapsed) {
-      document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`);
-    } else {
-      document.execCommand('createLink', false, url);
-    }
-    afterEdit();
-  }
-
-  function setBlock(type) {
-    restoreSelection();
-    const current = currentBlockType();
-    if (current === 'blockquote' && type !== 'blockquote') {
-      document.execCommand('outdent');
-    }
-    if (type === 'blockquote' && current === 'blockquote') {
-      document.execCommand('outdent');
-    } else {
-      document.execCommand('formatBlock', false, `<${type}>`);
-    }
-    afterEdit();
-  }
-
-  document.querySelector('.toolbar').addEventListener('mousedown', (e) => {
-    // Keep the editor's selection when clicking toolbar buttons.
-    if (e.target.closest('.tb-btn')) e.preventDefault();
-  });
-
-  document.querySelectorAll('.tb-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const toggle = btn.dataset.toggle;
-      const cmd = btn.dataset.cmd;
-      if (toggle === 'code') toggleInlineCode();
-      else if (toggle === 'link') toggleLink();
-      else if (toggle) exec(toggle);
-      else if (cmd) exec(cmd);
+  // Minimal IndexedDB key/value store (used to persist the save-folder handle).
+  function idb(mode, fn) {
+    return new Promise((resolve, reject) => {
+      const open = indexedDB.open(IDB_NAME, 1);
+      open.onupgradeneeded = () => open.result.createObjectStore(IDB_STORE);
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const db = open.result;
+        const tx = db.transaction(IDB_STORE, mode);
+        const req = fn(tx.objectStore(IDB_STORE));
+        tx.oncomplete = () => { db.close(); resolve(req && req.result); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+      };
     });
-  });
-
-  blockSelect.addEventListener('change', () => setBlock(blockSelect.value));
-
-  editor.addEventListener('input', () => {
-    if (!editor.firstElementChild && !editor.textContent) editor.innerHTML = '<p><br></p>';
-    setDirty(true);
-    updateEditorMeta();
-  });
-
-  // Paste as plain text so the document stays clean, markdown-friendly content.
-  editor.addEventListener('paste', (e) => {
-    e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
-    document.execCommand('insertText', false, text);
-  });
-
-  document.addEventListener('keydown', (e) => {
-    const mod = e.ctrlKey || e.metaKey;
-    if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(); }
-  });
-
-  /* ============================================================
-     HTML -> Markdown
-     ============================================================ */
-  const BLOCK_TAGS = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'UL', 'OL', 'LI', 'HR',
-    'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'TABLE', 'FIGURE']);
-  const isBlock = (n) => n.nodeType === 1 && BLOCK_TAGS.has(n.tagName);
-
-  function escapeMd(text) {
-    return text.replace(/([\\`*_\[\]~])/g, '\\$1');
   }
+  const idbGet = (key) => idb('readonly', (s) => s.get(key));
+  const idbSet = (key, val) => idb('readwrite', (s) => s.put(val, key));
+
+  // Renders HTML off-screen so innerText produces real line breaks.
+  function htmlToText(html) {
+    const el = document.createElement('div');
+    el.style.cssText = 'position:fixed;left:-99999px;top:0;width:800px;white-space:normal;';
+    el.innerHTML = html;
+    document.body.appendChild(el);
+    const text = el.innerText;
+    el.remove();
+    return text.replace(/​/g, '').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  /* ==========================================================================
+     3. SANITIZER
+     Everything rendered into the page passes through sanitizeHtml(): an
+     allowlist of tags/attributes. Unknown tags are unwrapped (text kept);
+     dangerous ones (script, iframe, ...) are removed with their content.
+     ========================================================================== */
+  const SAFE_TAGS = new Set(('A ABBR B BLOCKQUOTE BR CAPTION CODE DEL DIV EM FIGCAPTION FIGURE H1 H2 H3 H4 H5 H6 HR I IMG ' +
+    'INPUT KBD LI MARK OL P PRE S SMALL SPAN STRIKE STRONG SUB SUP TABLE TBODY TD TFOOT TH THEAD TR U UL').split(' '));
+  const DROP_TAGS = new Set(('SCRIPT STYLE IFRAME FRAME OBJECT EMBED LINK META BASE HEAD TITLE NOSCRIPT TEMPLATE FORM BUTTON ' +
+    'TEXTAREA SELECT OPTION SVG MATH CANVAS AUDIO VIDEO SOURCE').split(' '));
+  const SAFE_ATTRS = {
+    '*': ['title', 'style', 'class'],
+    A: ['href'], IMG: ['src', 'alt', 'width', 'height'], OL: ['start'],
+    TD: ['colspan', 'rowspan'], TH: ['colspan', 'rowspan'], INPUT: ['type', 'checked', 'disabled'],
+  };
+  const SAFE_CLASS = /^(doc-title|doc-subtitle|task-list|task-list-item|language-[\w+#.-]+)$/;
+  const SAFE_STYLE_PROPS = ['color', 'background-color', 'text-align'];
+  const SAFE_URL = /^(https?:|mailto:|tel:|data:image\/(png|gif|jpe?g|webp);)/i;
+
+  function cleanAttrs(el) {
+    const tag = el.tagName.toUpperCase();
+    for (const attr of Array.from(el.attributes)) {
+      const name = attr.name.toLowerCase();
+      const allowed = SAFE_ATTRS['*'].includes(name) || (SAFE_ATTRS[tag] || []).includes(name);
+      if (!allowed) { el.removeAttribute(attr.name); continue; }
+      if (name === 'href' || name === 'src') {
+        const v = attr.value.replace(/[\u0000- ]/g, '');
+        if (/^[a-z][a-z0-9+.-]*:/i.test(v) && !SAFE_URL.test(v)) el.removeAttribute(attr.name);
+      } else if (name === 'class') {
+        const keep = attr.value.split(/\s+/).filter((c) => SAFE_CLASS.test(c));
+        if (keep.length) el.setAttribute('class', keep.join(' ')); else el.removeAttribute('class');
+      } else if (name === 'style') {
+        const keep = SAFE_STYLE_PROPS
+          .map((p) => [p, el.style.getPropertyValue(p)])
+          .filter(([, v]) => v && !/url\(|expression/i.test(v))
+          .map(([p, v]) => `${p}: ${v}`);
+        if (keep.length) el.setAttribute('style', keep.join('; ')); else el.removeAttribute('style');
+      }
+    }
+  }
+
+  function cleanTree(root) {
+    for (const node of Array.from(root.childNodes)) {
+      if (node.nodeType === 8) { node.remove(); continue; }
+      if (node.nodeType !== 1) continue;
+      const tag = node.tagName.toUpperCase();
+      if (DROP_TAGS.has(tag) || (tag === 'INPUT' && (node.getAttribute('type') || '').toLowerCase() !== 'checkbox')) {
+        node.remove();
+        continue;
+      }
+      cleanTree(node);
+      if (!SAFE_TAGS.has(tag)) { node.replaceWith(...node.childNodes); continue; }
+      cleanAttrs(node);
+    }
+  }
+
+  /** Returns safe body HTML. Accepts fragments or full documents. */
+  function sanitizeHtml(html) {
+    const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+    cleanTree(doc.body);
+    return doc.body.innerHTML;
+  }
+
+  /* ==========================================================================
+     4. FORMAT ADAPTERS
+     One adapter per supported format. Adapters are plain objects with pure
+     functions — they never touch the editor DOM directly. FragEditor calls:
+       render(source)            -> safe HTML for Preview and Preview/Edit
+       serialize(rootEl, prev)   -> source text from the Preview/Edit DOM
+       fileContent(source, name) -> exact text written to disk
+     ========================================================================== */
+
+  /* ---- 4a. HTML helpers: pretty printer + full-document handling ---- */
+  const BLOCK_SET = new Set(['ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DD', 'DT', 'FIGURE', 'FIGCAPTION', 'FOOTER',
+    'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEADER', 'HR', 'LI', 'OL', 'P', 'PRE', 'SECTION', 'TABLE', 'THEAD', 'TBODY', 'TFOOT',
+    'TR', 'TD', 'TH', 'CAPTION', 'UL', 'MAIN', 'NAV']);
+  const VOID_SET = new Set(['BR', 'HR', 'IMG', 'INPUT']);
+
+  function startTag(el) {
+    const attrs = Array.from(el.attributes).map((a) => ` ${a.name}="${escapeHtml(a.value)}"`).join('');
+    return `<${el.tagName.toLowerCase()}${attrs}>`;
+  }
+
+  /** Indents block-level HTML one element per line; inline content stays on its line. */
+  function prettyHtml(html) {
+    const tpl = document.createElement('template');
+    tpl.innerHTML = String(html || '').replace(/​/g, '');
+    const lines = [];
+    const walk = (parent, depth) => {
+      const pad = '  '.repeat(depth);
+      let inlineBuf = '';
+      const flush = () => { if (inlineBuf.trim()) lines.push(pad + inlineBuf.trim()); inlineBuf = ''; };
+      for (const node of parent.childNodes) {
+        if (node.nodeType === 3) { inlineBuf += escapeHtml(node.nodeValue).replace(/\s+/g, ' '); continue; }
+        if (node.nodeType !== 1) continue;
+        if (!BLOCK_SET.has(node.tagName)) { inlineBuf += node.outerHTML; continue; }
+        flush();
+        if (VOID_SET.has(node.tagName)) { lines.push(pad + startTag(node)); continue; }
+        if (node.tagName === 'PRE') { lines.push(pad + node.outerHTML); continue; }
+        const hasBlockKids = Array.from(node.children).some((c) => BLOCK_SET.has(c.tagName));
+        if (!hasBlockKids) { lines.push(pad + startTag(node) + node.innerHTML.trim().replace(/\s*\n\s*/g, ' ') + `</${node.tagName.toLowerCase()}>`); continue; }
+        lines.push(pad + startTag(node));
+        walk(node, depth + 1);
+        lines.push(`${pad}</${node.tagName.toLowerCase()}>`);
+      }
+      flush();
+    };
+    walk(tpl.content, 0);
+    return lines.join('\n');
+  }
+
+  const hasHtmlShell = (src) => /<html[\s>]/i.test(src) && /<\/html>/i.test(src);
+
+  /** If prev was a full document, keep its <head> and replace only the <body> content. */
+  function replaceBody(prev, inner) {
+    const m = /(<body[^>]*>)([\s\S]*?)(<\/body>)/i.exec(prev || '');
+    if (!m) return inner;
+    return prev.slice(0, m.index) + m[1] + '\n' + inner + '\n' + m[3] + prev.slice(m.index + m[0].length);
+  }
+
+  /** Request 12: wrap in a full document only when the source has no <html> tags. */
+  function htmlFileContent(source, title) {
+    if (hasHtmlShell(source)) return source;
+    return `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>${escapeHtml(title)}</title>\n</head>\n<body>\n${source.trim()}\n</body>\n</html>\n`;
+  }
+
+  /* ---- 4b. Markdown: HTML DOM -> Markdown serializer ---- */
+  const MD_BLOCK_TAGS = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'PRE', 'UL', 'OL', 'LI', 'HR',
+    'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'TABLE', 'FIGURE']);
+  const isMdBlock = (n) => n.nodeType === 1 && MD_BLOCK_TAGS.has(n.tagName);
+
+  const escapeMd = (text) => text.replace(/([\\`*_\[\]~])/g, '\\$1');
 
   function escapeLineStart(line) {
     return line
-      .replace(/^(\s*)(#{1,6}\s|>|[-+]\s)/, '$1\\$2')
+      .replace(/^(\s*)(#{1,6}\s|>|[-+]\s|<)/, '$1\\$2')
       .replace(/^(\s*\d+)\.(\s)/, '$1\\.$2');
   }
 
-  function wrap(inner, mark) {
+  function mdWrap(inner, mark) {
     const m = inner.match(/^(\s*)([\s\S]*?)(\s*)$/);
     if (!m[2]) return inner;
     return `${m[1]}${mark}${m[2]}${mark}${m[3]}`;
   }
 
-  function inline(node) {
+  function mdInline(node) {
     if (node.nodeType === 3) {
       const t = node.nodeValue.replace(/​/g, '').replace(/ /g, ' ').replace(/[ \t\r\n]+/g, ' ');
       return escapeMd(t);
     }
     if (node.nodeType !== 1) return '';
-    const kids = () => Array.from(node.childNodes).map(inline).join('');
+    const kids = () => Array.from(node.childNodes).map(mdInline).join('');
     switch (node.tagName) {
       case 'BR': return '  \n';
-      case 'STRONG': case 'B': return wrap(kids(), '**');
-      case 'EM': case 'I': return wrap(kids(), '*');
-      case 'S': case 'STRIKE': case 'DEL': return wrap(kids(), '~~');
+      case 'INPUT': return '';
+      case 'STRONG': case 'B': return mdWrap(kids(), '**');
+      case 'EM': case 'I': return mdWrap(kids(), '*');
+      case 'S': case 'STRIKE': case 'DEL': return mdWrap(kids(), '~~');
       case 'CODE': {
         const t = node.textContent.replace(/​/g, '').replace(/ /g, ' ');
         if (!t) return '';
@@ -731,99 +674,1345 @@
         const label = kids();
         return href ? `[${label || escapeMd(href)}](${href.replace(/\)/g, '%29').replace(/ /g, '%20')})` : label;
       }
-      case 'IMG': return `![${escapeMd(node.getAttribute('alt') || '')}](${node.getAttribute('src') || ''})`;
+      case 'IMG': return `![${escapeMd(node.getAttribute('alt') || '')}](${(node.getAttribute('src') || '').replace(/\)/g, '%29').replace(/ /g, '%20')})`;
       default: return kids();
     }
   }
 
-  function finishParagraph(text) {
+  function mdFinishParagraph(text) {
     const cleaned = text.replace(/( {2}\n)+\s*$/, '').replace(/^\s+|\s+$/g, '');
     if (!cleaned) return '';
     return cleaned.split('\n').map((line) => escapeLineStart(line.replace(/^ (?! )/, ''))).join('\n');
   }
 
-  function blocksOf(nodes) {
+  function mdBlocksOf(nodes) {
     const out = [];
     let buf = '';
-    const flush = () => {
-      const p = finishParagraph(buf);
-      if (p) out.push(p);
-      buf = '';
-    };
+    const flush = () => { const p = mdFinishParagraph(buf); if (p) out.push(p); buf = ''; };
     for (const n of nodes) {
-      if (isBlock(n)) {
-        flush();
-        const md = block(n);
-        if (md) out.push(md);
-      } else {
-        buf += inline(n);
-      }
+      if (isMdBlock(n)) { flush(); const md = mdBlock(n); if (md) out.push(md); }
+      else buf += mdInline(n);
     }
     flush();
     return out;
   }
 
-  function indentRest(text, pad) {
-    return text.split('\n').map((l, i) => (i === 0 || !l ? l : pad + l)).join('\n');
-  }
+  const indentRest = (text, pad) => text.split('\n').map((l, i) => (i === 0 || !l ? l : pad + l)).join('\n');
 
-  function list(el) {
+  function mdList(el) {
     const ordered = el.tagName === 'OL';
     let n = parseInt(el.getAttribute('start'), 10) || 1;
     const lines = [];
     for (const child of el.children) {
       if (child.tagName === 'UL' || child.tagName === 'OL') {
-        lines.push(list(child).split('\n').map((l) => (l ? '  ' + l : l)).join('\n'));
+        lines.push(mdList(child).split('\n').map((l) => (l ? '  ' + l : l)).join('\n'));
         continue;
       }
-      const marker = ordered ? `${n++}. ` : '- ';
-      const pad = ' '.repeat(marker.length);
+      const box = child.querySelector(':scope > input[type="checkbox"], :scope > p > input[type="checkbox"]');
+      let marker;
+      if (ordered) marker = `${n++}. `;
+      else if (box) marker = `- [${box.hasAttribute('checked') || box.checked ? 'x' : ' '}] `;
+      else marker = '- ';
+      const pad = ' '.repeat(ordered ? marker.length : 2);
       const nested = [];
       const content = [];
       for (const c of child.childNodes) {
         if (c.nodeType === 1 && (c.tagName === 'UL' || c.tagName === 'OL')) nested.push(c);
         else content.push(c);
       }
-      const text = blocksOf(content).join('\n');
+      const text = mdBlocksOf(content).join('\n');
       lines.push(text ? marker + indentRest(text, pad) : marker.trimEnd());
-      for (const sub of nested) {
-        lines.push(list(sub).split('\n').map((l) => (l ? pad + l : l)).join('\n'));
-      }
+      for (const sub of nested) lines.push(mdList(sub).split('\n').map((l) => (l ? pad + l : l)).join('\n'));
     }
     return lines.join('\n');
   }
 
-  function block(el) {
+  function mdTable(el) {
+    const rows = Array.from(el.querySelectorAll('tr'));
+    if (!rows.length) return '';
+    const cells = (row) => Array.from(row.children).map((c) =>
+      Array.from(c.childNodes).map(mdInline).join('').replace(/ {2}\n/g, ' ').replace(/\|/g, '\\|').trim());
+    const grid = rows.map(cells);
+    const cols = Math.max(...grid.map((r) => r.length));
+    grid.forEach((r) => { while (r.length < cols) r.push(''); });
+    const aligns = Array.from(rows[0].children).map((c) => (c.style && c.style.textAlign) || '');
+    const sep = Array.from({ length: cols }, (_, i) =>
+      aligns[i] === 'center' ? ':---:' : aligns[i] === 'right' ? '---:' : '---');
+    const line = (r) => `| ${r.join(' | ')} |`;
+    return [line(grid[0]), line(sep), ...grid.slice(1).map(line)].join('\n');
+  }
+
+  function mdBlock(el) {
     switch (el.tagName) {
       case 'H1': case 'H2': case 'H3': case 'H4': case 'H5': case 'H6': {
         const level = Number(el.tagName[1]);
-        const text = Array.from(el.childNodes).map(inline).join('').replace(/ {2}\n/g, ' ').trim();
+        const text = Array.from(el.childNodes).map(mdInline).join('').replace(/ {2}\n/g, ' ').trim();
         return text ? `${'#'.repeat(level)} ${text}` : '';
       }
       case 'BLOCKQUOTE': {
-        const inner = blocksOf(el.childNodes).join('\n\n');
+        const inner = mdBlocksOf(el.childNodes).join('\n\n');
         if (!inner) return '';
         return inner.split('\n').map((l) => (l ? `> ${l}` : '>')).join('\n');
       }
       case 'PRE': {
-        const code = el.innerText.replace(/​/g, '').replace(/ /g, ' ').replace(/\n+$/, '');
+        const raw = el.isConnected ? el.innerText : el.textContent;
+        const code = raw.replace(/​/g, '').replace(/ /g, ' ').replace(/\n+$/, '');
+        const lang = ((el.querySelector('code') || el).className.match(/language-([\w+#.-]+)/) || [])[1] || '';
         const fence = code.includes('```') ? '~~~' : '```';
-        return `${fence}\n${code}\n${fence}`;
+        return `${fence}${lang}\n${code}\n${fence}`;
       }
-      case 'UL': case 'OL': return list(el);
+      case 'UL': case 'OL': return mdList(el);
+      case 'TABLE': return mdTable(el);
       case 'HR': return '---';
-      default: return blocksOf(el.childNodes).join('\n\n');
+      default: return mdBlocksOf(el.childNodes).join('\n\n');
     }
   }
 
-  function toMarkdown() {
-    const md = blocksOf(editor.childNodes).join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
+  /** Converts the DOM under root to Markdown. */
+  function htmlToMarkdown(root) {
+    const md = mdBlocksOf(root.childNodes).join('\n\n').replace(/\n{3,}/g, '\n\n').trim();
     return md ? md + '\n' : '';
   }
 
-  /* ============================================================
-     Dialogs + toast
-     ============================================================ */
+  /* ---- 4c. Markdown: Markdown -> HTML renderer (CommonMark subset) ----
+     Covers what the serializer above emits, plus common hand-written syntax:
+     ATX headings, paragraphs + hard breaks, emphasis, strike, code spans,
+     fenced code, nested/ordered/task lists, blockquotes, hr, links, images,
+     autolinks, GFM tables and raw HTML blocks (sanitized afterwards). */
+  const MD_RE = {
+    fence: /^ {0,3}(`{3,}|~{3,})[ \t]*([\w+#.-]*)[^`]*$/,
+    heading: /^ {0,3}(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$/,
+    hr: /^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$/,
+    quote: /^ {0,3}> ?/,
+    list: /^( {0,3})([-*+]|\d{1,9}[.)])(?:[ \t]+(.*)|[ \t]*$)/,
+    tableSep: /^ {0,3}\|?[ \t]*:?-+:?[ \t]*(\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$/,
+    htmlBlock: /^ {0,3}<\/?(address|article|aside|blockquote|details|div|dl|fieldset|figure|footer|h[1-6]|header|hr|ol|p|pre|section|table|ul|!--)[\s>\/]/i,
+  };
+
+  const mdIsBlockStart = (line) =>
+    MD_RE.fence.test(line) || MD_RE.heading.test(line) || MD_RE.hr.test(line) ||
+    MD_RE.quote.test(line) || MD_RE.list.test(line) || MD_RE.htmlBlock.test(line);
+
+  function mdRenderInline(text) {
+    const slots = [];
+    const hold = (html) => `\u0000${slots.push(html) - 1}\u0000`;
+    let s = String(text);
+    // Code spans and backslash escapes in one left-to-right pass.
+    s = s.replace(/(`+)([\s\S]*?[^`])\1(?!`)|\\([!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~])/g, (m, fence, code, esc) => {
+      if (esc !== undefined) return hold(escapeHtml(esc));
+      const c = code.replace(/\n/g, ' ');
+      return hold(`<code>${escapeHtml(/^ .*[^ ].* $/.test(c) ? c.slice(1, -1) : c)}</code>`);
+    });
+    // Autolinks <https://...>
+    s = s.replace(/<((?:https?|mailto):[^\s<>]+)>/g, (_, u) => hold(`<a href="${escapeHtml(u)}">${escapeHtml(u)}</a>`));
+    const restore = (str) => str.replace(/\u0000(\d+)\u0000/g, (_, n) => slots[n]);
+    // Images, then links (label keeps flowing through emphasis processing).
+    s = s.replace(/!\[([^\]]*)\]\(\s*<?([^\s)>]*)>?(?:\s+"([^"]*)")?\s*\)/g, (_, alt, src, title) =>
+      hold(`<img src="${escapeHtml(src)}" alt="${restore(escapeHtml(alt))}"${title ? ` title="${escapeHtml(title)}"` : ''}>`));
+    s = s.replace(/\[([^\[\]]*)\]\(\s*<?([^\s)>]*)>?(?:\s+"([^"]*)")?\s*\)/g, (_, label, href, title) =>
+      hold(`<a href="${escapeHtml(href)}"${title ? ` title="${escapeHtml(title)}"` : ''}>`) + label + hold('</a>'));
+    s = escapeHtml(s);
+    s = s
+      .replace(/\*\*\*(?=\S)([\s\S]*?\S)\*\*\*/g, '<strong><em>$1</em></strong>')
+      .replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^\w])__(?=\S)([\s\S]*?\S)__(?!\w)/g, '$1<strong>$2</strong>')
+      .replace(/~~(?=\S)([\s\S]*?\S)~~/g, '<del>$1</del>')
+      .replace(/\*(?=\S)([\s\S]*?\S)\*/g, '<em>$1</em>')
+      .replace(/(^|[^\w])_(?=\S)([\s\S]*?\S)_(?!\w)/g, '$1<em>$2</em>');
+    return restore(s);
+  }
+
+  // Paragraph text: "  \n" or "\\\n" become <br>.
+  const mdParagraph = (text) => text.split(/(?: {2,}|\\)\n/).map(mdRenderInline).join('<br>\n');
+
+  function mdSplitRow(line) {
+    return line.trim().replace(/^\|/, '').replace(/(^|[^\\])\|$/, '$1').split(/(?<!\\)\|/).map((c) => c.trim());
+  }
+
+  function mdRenderBlocks(lines, tight = false) {
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      if (!line.trim()) { i++; continue; }
+      let m;
+
+      if ((m = line.match(MD_RE.fence))) {
+        const ch = m[1][0];
+        const close = new RegExp(`^ {0,3}${ch === '`' ? '`' : '~'}{${m[1].length},}[ \\t]*$`);
+        const body = [];
+        i++;
+        while (i < lines.length && !close.test(lines[i])) body.push(lines[i++]);
+        i++;
+        out.push(`<pre><code${m[2] ? ` class="language-${escapeHtml(m[2])}"` : ''}>${escapeHtml(body.join('\n'))}</code></pre>`);
+        continue;
+      }
+      if ((m = line.match(MD_RE.heading))) {
+        const n = m[1].length;
+        out.push(`<h${n}>${mdRenderInline(m[2] || '')}</h${n}>`);
+        i++;
+        continue;
+      }
+      if (MD_RE.hr.test(line)) { out.push('<hr>'); i++; continue; }
+      if (MD_RE.quote.test(line)) {
+        const inner = [];
+        while (i < lines.length && MD_RE.quote.test(lines[i])) inner.push(lines[i++].replace(MD_RE.quote, ''));
+        out.push(`<blockquote>\n${mdRenderBlocks(inner)}\n</blockquote>`);
+        continue;
+      }
+      if (MD_RE.list.test(line)) {
+        const res = mdRenderList(lines, i);
+        out.push(res.html);
+        i = res.next;
+        continue;
+      }
+      if (line.includes('|') && i + 1 < lines.length && MD_RE.tableSep.test(lines[i + 1]) && lines[i + 1].includes('-')) {
+        const head = mdSplitRow(line);
+        const aligns = mdSplitRow(lines[i + 1]).map((c) =>
+          (c.startsWith(':') && c.endsWith(':') ? 'center' : c.endsWith(':') ? 'right' : ''));
+        const cell = (tag, c, k) => `<${tag}${aligns[k] ? ` style="text-align: ${aligns[k]}"` : ''}>${mdRenderInline(c)}</${tag}>`;
+        i += 2;
+        const body = [];
+        while (i < lines.length && lines[i].trim() && lines[i].includes('|')) {
+          const cells = mdSplitRow(lines[i++]);
+          body.push(`<tr>${head.map((_, k) => cell('td', cells[k] || '', k)).join('')}</tr>`);
+        }
+        out.push(`<table>\n<thead><tr>${head.map((c, k) => cell('th', c, k)).join('')}</tr></thead>\n<tbody>\n${body.join('\n')}\n</tbody>\n</table>`);
+        continue;
+      }
+      if (MD_RE.htmlBlock.test(line)) {
+        const raw = [];
+        while (i < lines.length && lines[i].trim()) raw.push(lines[i++]);
+        out.push(raw.join('\n'));
+        continue;
+      }
+      // Paragraph: runs until a blank line or the start of another block.
+      const para = [line.trim()];
+      i++;
+      while (i < lines.length && lines[i].trim() && !mdIsBlockStart(lines[i]) &&
+        !(lines[i].includes('|') && i + 1 < lines.length && MD_RE.tableSep.test(lines[i + 1]))) {
+        para.push(lines[i].replace(/^\s+/, ''));
+        i++;
+      }
+      const html = mdParagraph(para.join('\n'));
+      out.push(tight ? html : `<p>${html}</p>`);
+    }
+    return out.join('\n');
+  }
+
+  function mdRenderList(lines, start) {
+    const first = lines[start].match(MD_RE.list);
+    const ordered = /\d/.test(first[2]);
+    const startNum = ordered ? parseInt(first[2], 10) : 1;
+    const items = [];
+    let loose = false;
+    let i = start;
+    while (i < lines.length) {
+      const m = lines[i].match(MD_RE.list);
+      if (!m || /\d/.test(m[2]) !== ordered || MD_RE.hr.test(lines[i])) break;
+      const contentIndent = m[3] !== undefined ? m[0].length - m[3].length : m[0].length + 1;
+      const itemLines = [m[3] || ''];
+      i++;
+      let sawBlank = false;
+      while (i < lines.length) {
+        const l = lines[i];
+        if (!l.trim()) { itemLines.push(''); sawBlank = true; i++; continue; }
+        const indent = l.match(/^ */)[0].length;
+        if (indent >= contentIndent) { itemLines.push(l.slice(contentIndent)); sawBlank = false; i++; continue; }
+        if (!sawBlank && !mdIsBlockStart(l)) { itemLines.push(l.trim()); i++; continue; }
+        break;
+      }
+      let trailingBlank = false;
+      while (itemLines.length > 1 && !itemLines[itemLines.length - 1].trim()) { itemLines.pop(); trailingBlank = true; }
+      const nextItem = i < lines.length && lines[i].match(MD_RE.list);
+      if (trailingBlank && nextItem && /\d/.test(nextItem[2]) === ordered) loose = true;
+      if (itemLines.slice(1).some((l, k) => !l.trim() && itemLines[k + 2] && !MD_RE.list.test(itemLines[k + 2]))) loose = true;
+      items.push(itemLines);
+    }
+    let isTaskList = false;
+    const lis = items.map((itemLines) => {
+      const task = itemLines[0].match(/^\[([ xX])\][ \t]+/);
+      if (task) { isTaskList = true; itemLines[0] = itemLines[0].slice(task[0].length); }
+      const body = mdRenderBlocks(itemLines, !loose);
+      return task
+        ? `<li class="task-list-item"><input type="checkbox" disabled${task[1] !== ' ' ? ' checked' : ''}> ${body}</li>`
+        : `<li>${body}</li>`;
+    });
+    const tag = ordered ? 'ol' : 'ul';
+    const attrs = (ordered && startNum !== 1 ? ` start="${startNum}"` : '') + (isTaskList ? ' class="task-list"' : '');
+    return { html: `<${tag}${attrs}>\n${lis.join('\n')}\n</${tag}>`, next: i };
+  }
+
+  /** Markdown source -> (unsanitized) HTML. */
+  function markdownToHtml(src) {
+    const lines = String(src || '').replace(/\r\n?/g, '\n').replace(/\t/g, '    ').replace(/\u0000/g, '').split('\n');
+    return mdRenderBlocks(lines);
+  }
+
+  /* ---- 4d. Google Docs clipboard HTML -> clean semantic HTML ---- */
+  function normalizeGoogleDocsHtml(html) {
+    const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+    const body = doc.body;
+    body.querySelectorAll('meta, style').forEach((n) => n.remove());
+    body.querySelectorAll('[id^="docs-internal-guid"]').forEach((n) => n.replaceWith(...n.childNodes));
+    // Inline styles -> semantic tags.
+    body.querySelectorAll('span').forEach((span) => {
+      const st = span.style;
+      const weight = st.fontWeight;
+      const deco = `${st.textDecorationLine || ''} ${st.textDecoration || ''}`;
+      let node = doc.createDocumentFragment();
+      node.append(...span.childNodes);
+      const wrapIn = (tag, style) => {
+        const el = doc.createElement(tag);
+        if (style) el.setAttribute('style', style);
+        el.append(node);
+        node = el;
+      };
+      if (weight === 'bold' || parseInt(weight, 10) >= 600) wrapIn('strong');
+      if (st.fontStyle === 'italic') wrapIn('em');
+      if (deco.includes('line-through')) wrapIn('s');
+      if (deco.includes('underline') && !span.closest('a')) wrapIn('u');
+      if (st.verticalAlign === 'super') wrapIn('sup');
+      if (st.verticalAlign === 'sub') wrapIn('sub');
+      const color = st.color;
+      if (color && !/^(rgb\(0, 0, 0\)|#000000|black)$/i.test(color) && !span.closest('a')) wrapIn('span', `color: ${color}`);
+      const bg = st.backgroundColor;
+      if (bg && !/^(transparent|rgba\(0, 0, 0, 0\))$/i.test(bg)) wrapIn('span', `background-color: ${bg}`);
+      span.replaceWith(node);
+    });
+    // Block styles: keep non-default alignment only.
+    body.querySelectorAll('[style]').forEach((el) => {
+      if (el.tagName === 'SPAN') return;
+      const align = el.style.textAlign;
+      if (align && align !== 'left' && align !== 'start') el.setAttribute('style', `text-align: ${align}`);
+      else el.removeAttribute('style');
+    });
+    body.querySelectorAll('[dir], [role], [aria-level], [id]').forEach((el) => {
+      ['dir', 'role', 'aria-level', 'id'].forEach((a) => el.removeAttribute(a));
+    });
+    body.querySelectorAll('li > p:only-child').forEach((p) => p.replaceWith(...p.childNodes));
+    Array.from(body.children).forEach((el) => { if (el.tagName === 'BR') el.remove(); });
+    return prettyHtml(sanitizeHtml(body.innerHTML));
+  }
+
+  /* ---- 4e. Adapter registry ---- */
+  const FORMATS = {
+    markdown: {
+      id: 'markdown', label: 'Markdown', ext: '.md', mime: 'text/markdown', family: 'markdown',
+      blockOptions: [['p', 'Normal text'], ['h1', 'Heading 1'], ['h2', 'Heading 2'], ['h3', 'Heading 3'], ['blockquote', 'Quote'], ['pre', 'Code block']],
+      toolbar: [['undo', 'redo'], ['block'], ['bold', 'italic', 'strikeThrough', 'code', 'link', 'image'],
+        ['insertUnorderedList', 'insertOrderedList', 'task'], ['insertHorizontalRule', 'table']],
+      render: (src) => sanitizeHtml(markdownToHtml(src)),
+      serialize: (root) => htmlToMarkdown(root),
+      fileContent: (src) => src,
+    },
+    html: {
+      id: 'html', label: 'HTML', ext: '.html', mime: 'text/html', family: 'html',
+      blockOptions: [['p', 'Paragraph'], ['h1', 'Heading 1'], ['h2', 'Heading 2'], ['h3', 'Heading 3'], ['h4', 'Heading 4'],
+        ['h5', 'Heading 5'], ['h6', 'Heading 6'], ['blockquote', 'Quote'], ['pre', 'Preformatted']],
+      toolbar: [['undo', 'redo'], ['block'], ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'code', 'link', 'image'],
+        ['insertUnorderedList', 'insertOrderedList', 'indent', 'outdent'], ['justifyLeft', 'justifyCenter', 'justifyRight'],
+        ['insertHorizontalRule', 'table', 'removeFormat', 'prettify']],
+      render: (src) => sanitizeHtml(src),
+      serialize: (root, prev) => replaceBody(prev, prettyHtml(sanitizeHtml(root.innerHTML))),
+      fileContent: htmlFileContent,
+    },
+    text: {
+      id: 'text', label: 'Text', ext: '.txt', mime: 'text/plain', family: 'text', plain: true,
+      blockOptions: [],
+      toolbar: [['undo', 'redo'], ['softWrap', 'monospace'], ['upper', 'lower', 'titleCase', 'trim']],
+      render: (src) => escapeHtml(src),
+      serialize: (root) => root.innerText.replace(/​/g, '').replace(/\n$/, ''),
+      fileContent: (src) => src,
+    },
+    gdoc: {
+      id: 'gdoc', label: 'Google Doc', ext: '.html', mime: 'text/html', family: 'html',
+      blockOptions: [['p', 'Normal text'], ['title', 'Title'], ['subtitle', 'Subtitle'], ['h1', 'Heading 1'], ['h2', 'Heading 2'], ['h3', 'Heading 3']],
+      toolbar: [['undo', 'redo'], ['block'], ['bold', 'italic', 'underline', 'strikeThrough', 'foreColor', 'hiliteColor'], ['link', 'image'],
+        ['justifyLeft', 'justifyCenter', 'justifyRight'], ['insertUnorderedList', 'insertOrderedList', 'task', 'indent', 'outdent'],
+        ['removeFormat', 'prettify']],
+      render: (src) => sanitizeHtml(src),
+      serialize: (root, prev) => replaceBody(prev, prettyHtml(sanitizeHtml(root.innerHTML))),
+      fileContent: htmlFileContent,
+    },
+  };
+  const getAdapter = (id) => FORMATS[id] || FORMATS[DEFAULT_FORMAT];
+
+  /* ==========================================================================
+     5. FORMAT DETECTOR
+     detectFormat({ html, text }) -> { id, fromSource }
+     `fromSource` = true when the clipboard *text* is HTML markup (pasted code),
+     as opposed to rich HTML copied from a rendered page.
+     ========================================================================== */
+  const RICH_HTML = /<(p|h[1-6]|ul|ol|li|table|strong|b|em|i|a|img|blockquote|pre|code)[\s>]/i;
+
+  function looksLikeHtmlSource(text) {
+    const t = text.trim();
+    if (/^<(!doctype|html|head|body)[\s>]/i.test(t)) return true;
+    const lines = t.split('\n').filter((l) => l.trim());
+    if (!lines.length || !/<\/[a-z][\w-]*>/i.test(t)) return false;
+    const tagLines = lines.filter((l) => /^\s*<\/?[a-z][\w-]*[\s>\/]/i.test(l)).length;
+    return tagLines / lines.length >= 0.6;
+  }
+
+  function markdownScore(text) {
+    let score = 0;
+    for (const line of text.split('\n')) {
+      if (/^ {0,3}#{1,6}\s+\S/.test(line)) score += 3;
+      else if (/^ {0,3}(`{3,}|~{3,})/.test(line)) score += 3;
+      else if (MD_RE.tableSep.test(line) && line.includes('-') && line.includes('|')) score += 3;
+      else if (/^\s*[-*+]\s+\[[ xX]\]\s/.test(line)) score += 2;
+      else if (/^\s*([-*+]|\d+[.)])\s+\S/.test(line)) score += 1;
+      else if (/^ {0,3}>\s?/.test(line)) score += 1;
+      else if (MD_RE.hr.test(line)) score += 1;
+      score += (line.match(/!?\[[^\]]+\]\([^)]+\)/g) || []).length * 2;
+      score += (line.match(/\*\*[^*\s][^*]*\*\*|`[^`\s][^`]*`/g) || []).length;
+    }
+    return score;
+  }
+
+  function detectFormat({ html = '', text = '' }) {
+    if (/docs-internal-guid/i.test(html)) return { id: 'gdoc', fromSource: false };
+    if (text && looksLikeHtmlSource(text)) return { id: 'html', fromSource: true };
+    if (text && markdownScore(text) >= 3) return { id: 'markdown', fromSource: true };
+    if (html && RICH_HTML.test(html)) return { id: 'html', fromSource: false };
+    return { id: 'text', fromSource: true };
+  }
+
+  /* ==========================================================================
+     6. FORMAT CONVERTER  (extension point — request 8)
+     Register (from -> to) conversion functions here as they are built.
+     Unregistered pairs return null; the UI then offers to keep the content
+     as-is. Future targets (PDF via print stylesheet, Google Drive upload with
+     mimeType application/vnd.google-apps.document, ...) plug in the same way.
+     ========================================================================== */
+  const FormatConverter = {
+    _fns: new Map(),
+    register(from, to, fn) { this._fns.set(`${from}>${to}`, fn); },
+    canConvert(from, to) { return from === to || this._fns.has(`${from}>${to}`); },
+    convert(source, from, to) {
+      if (from === to) return source;
+      const fn = this._fns.get(`${from}>${to}`);
+      if (!fn) {
+        console.info(`[FormatConverter] ${from} -> ${to} is not implemented yet`); // TODO: add converter
+        return null;
+      }
+      return fn(source);
+    },
+  };
+
+  const htmlSourceToMarkdown = (src) => {
+    const div = document.createElement('div');
+    div.innerHTML = sanitizeHtml(src);
+    return htmlToMarkdown(div);
+  };
+  const textToMarkdown = (src) => String(src).replace(/\r\n?/g, '\n').split(/\n{2,}/)
+    .map((para) => para.split('\n').map((l) => escapeLineStart(escapeMd(l))).join('  \n'))
+    .join('\n\n');
+  const textToHtml = (src) => String(src).replace(/\r\n?/g, '\n').split(/\n{2,}/).filter((p) => p.trim())
+    .map((para) => `<p>${escapeHtml(para).replace(/\n/g, '<br>')}</p>`).join('\n');
+
+  // Pre-registered conversions we get for free from the renderers/serializers above.
+  FormatConverter.register('markdown', 'html', (src) => prettyHtml(sanitizeHtml(markdownToHtml(src))));
+  FormatConverter.register('markdown', 'text', (src) => htmlToText(sanitizeHtml(markdownToHtml(src))));
+  FormatConverter.register('html', 'markdown', htmlSourceToMarkdown);
+  FormatConverter.register('html', 'text', (src) => htmlToText(sanitizeHtml(src)));
+  FormatConverter.register('gdoc', 'html', (src) => src);
+  FormatConverter.register('gdoc', 'markdown', htmlSourceToMarkdown);
+  FormatConverter.register('gdoc', 'text', (src) => htmlToText(sanitizeHtml(src)));
+  FormatConverter.register('text', 'markdown', textToMarkdown);
+  FormatConverter.register('text', 'html', textToHtml);
+  // Not registered yet (stub dialog): html -> gdoc, markdown -> gdoc, text -> gdoc.
+
+  /* ==========================================================================
+     7. FragEditor
+     The editor component. It is the only code that touches the editing DOM.
+
+     Public API
+       new FragEditor(hostEl, { format, mode, placeholder, prompt })
+       getContent() / setContent(source, formatId?)
+       getFormat()  / setFormat(id, { convert = true }) -> boolean
+       getMode()    / setMode('preview' | 'edit' | 'live')
+       exec(commandId, arg?) / queryState(commandId) / supports(commandId)
+       focus({ end }), clear(), isEmpty(), stats() -> { words, chars }
+       resolvePaste(info) -> { replace, format, source }   (override to customize)
+
+     Events (EventTarget): 'change', 'formatchange', 'modechange',
+       'selectionchange', 'notify' (detail.message)
+
+     The source string is the single source of truth. Three surfaces show it:
+       edit    -> <textarea>       raw source, any format
+       preview -> read-only <div>  adapter.render(source)
+       live    -> contenteditable  render(source), serialized back on input
+     ========================================================================== */
+  const RICH_EXEC = new Set(['undo', 'redo', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript',
+    'insertUnorderedList', 'insertOrderedList', 'indent', 'outdent', 'justifyLeft', 'justifyCenter', 'justifyRight',
+    'insertHorizontalRule', 'removeFormat']);
+  const TEXT_CMDS = ['undo', 'redo', 'softWrap', 'monospace', 'upper', 'lower', 'titleCase', 'trim'];
+  const SUPPORT = {
+    live: {
+      markdown: new Set(FORMATS.markdown.toolbar.flat()),
+      html: new Set([...FORMATS.html.toolbar.flat(), ...FORMATS.gdoc.toolbar.flat()].filter((id) => id !== 'prettify')),
+      text: new Set(TEXT_CMDS),
+    },
+    edit: {
+      markdown: new Set(FORMATS.markdown.toolbar.flat()),
+      html: new Set([...FORMATS.html.toolbar.flat(), ...FORMATS.gdoc.toolbar.flat()].filter((id) => id !== 'indent' && id !== 'outdent')),
+      text: new Set(TEXT_CMDS),
+    },
+    preview: new Set(['copy', 'selectAll']),
+  };
+  const PLAINTEXT_ONLY = (() => {
+    const d = document.createElement('div');
+    try { d.contentEditable = 'plaintext-only'; } catch { return false; }
+    return d.contentEditable === 'plaintext-only';
+  })();
+
+  class FragEditor extends EventTarget {
+    constructor(host, { format = DEFAULT_FORMAT, mode = DEFAULT_MODE, placeholder = 'Start capturing your idea…', prompt = null } = {}) {
+      super();
+      this.host = host;
+      this.format = getAdapter(format).id;
+      this.mode = MODES.includes(mode) ? mode : DEFAULT_MODE;
+      this.source = '';
+      this.placeholder = placeholder;
+      this.prompt = prompt || (async (title, msg, initial) => window.prompt(msg, initial));
+      this.textOptions = { wrap: true, mono: false };
+      this._savedRange = null;
+      this._syncTimer = null;
+      this._liveDirty = false;
+      this._pastedOnce = false;
+
+      // Surfaces
+      this.raw = document.createElement('textarea');
+      this.raw.className = 'surface surface-raw';
+      this.raw.spellcheck = false;
+      this.raw.setAttribute('aria-label', 'Document source');
+      this.preview = document.createElement('div');
+      this.preview.className = 'surface surface-preview doc-content';
+      this.preview.setAttribute('aria-label', 'Document preview');
+      this.live = document.createElement('div');
+      this.live.className = 'surface surface-live doc-content';
+      this.live.setAttribute('role', 'textbox');
+      this.live.setAttribute('aria-multiline', 'true');
+      this.live.setAttribute('aria-label', 'Document editor');
+      this.live.spellcheck = true;
+      this.live.dataset.placeholder = placeholder;
+      host.append(this.raw, this.preview, this.live);
+
+      document.execCommand('defaultParagraphSeparator', false, 'p');
+      this._bindEvents();
+      this._applyTextOptions();
+      this._renderSurface();
+    }
+
+    /* ---------- public: content + format + mode ---------- */
+    get adapter() { return getAdapter(this.format); }
+    getFormat() { return this.format; }
+    getMode() { return this.mode; }
+
+    getContent() { this._flush(); return this.source; }
+
+    setContent(source, formatId) {
+      clearTimeout(this._syncTimer);
+      this._liveDirty = false;
+      const prevFormat = this.format;
+      if (formatId) this.format = getAdapter(formatId).id;
+      this.source = String(source ?? '');
+      this._renderSurface();
+      if (prevFormat !== this.format) this._emit('formatchange', { from: prevFormat, to: this.format });
+      this._emit('change');
+    }
+
+    /** Returns false when no converter exists for the pair (and nothing changes). */
+    setFormat(id, { convert = true } = {}) {
+      const to = getAdapter(id).id;
+      const from = this.format;
+      if (to === from) return true;
+      this._flush();
+      let next = this.source;
+      if (convert && next.trim()) {
+        const converted = FormatConverter.convert(next, from, to);
+        if (converted === null) return false;
+        next = converted;
+      }
+      this.format = to;
+      this.source = next;
+      this._renderSurface();
+      this._emit('formatchange', { from, to });
+      this._emit('change');
+      return true;
+    }
+
+    setMode(mode) {
+      if (!MODES.includes(mode) || mode === this.mode) return;
+      this._flush();
+      this.mode = mode;
+      this._renderSurface();
+      this._emit('modechange', { mode });
+      this.focus();
+    }
+
+    clear() {
+      this._pastedOnce = false;
+      this.setContent('', DEFAULT_FORMAT);
+    }
+
+    isEmpty() { return !this.getContent().trim(); }
+
+    stats() {
+      const src = this.getContent();
+      const text = this.adapter.family === 'html' ? src.replace(/<[^>]+>/g, ' ') : src;
+      const words = text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+      return { words, chars: text.length };
+    }
+
+    focus({ end = false } = {}) {
+      if (this.mode === 'edit') {
+        this.raw.focus();
+        if (end) this.raw.setSelectionRange(this.raw.value.length, this.raw.value.length);
+      } else if (this.mode === 'live') {
+        this.live.focus();
+        if (end || !this._selectionInLive()) this._caretToEnd();
+      } else {
+        this.preview.focus({ preventScroll: true });
+      }
+    }
+
+    /* ---------- public: paste policy (request 7) ----------
+       Override this method to customize paste behavior. Default:
+       - first paste into an empty document adopts the detected format;
+       - afterwards the document keeps its format and the pasted fragment is
+         converted into it.
+       Future rule example: when current === 'markdown' and detected.id is
+       'html' from source, wrap the fragment in a ```html fence instead. */
+    resolvePaste({ detected, current, html, text, isFirstPaste }) {
+      const payload = (fmt) => {
+        if (fmt === 'gdoc') return normalizeGoogleDocsHtml(html);
+        if (fmt === 'html') return detected.fromSource ? text : prettyHtml(sanitizeHtml(html));
+        return text;
+      };
+      if (isFirstPaste) return { replace: true, format: detected.id, source: payload(detected.id) };
+      if (current === 'text') return { replace: false, format: current, source: text };
+      if (detected.id === current) return { replace: false, format: current, source: payload(detected.id) };
+      const fromFamily = getAdapter(detected.id).family;
+      const toFamily = getAdapter(current).family;
+      if (fromFamily === 'html' && toFamily === 'html') return { replace: false, format: current, source: payload(detected.id) };
+      const converted = FormatConverter.convert(payload(detected.id), detected.id, current)
+        ?? FormatConverter.convert(text, 'text', current)
+        ?? text;
+      return { replace: false, format: current, source: converted };
+    }
+
+    /* ---------- public: commands ---------- */
+    supports(id) {
+      if (this.mode === 'preview') return SUPPORT.preview.has(id);
+      return SUPPORT[this.mode][this.adapter.family].has(id);
+    }
+
+    async exec(id, arg) {
+      if (!this.supports(id)) return;
+      if (this.mode === 'preview') await this._previewCommand(id);
+      else if (this.adapter.family === 'text' && !['undo', 'redo'].includes(id)) this._textCommand(id);
+      else if (this.mode === 'edit') await this._rawCommand(id, arg);
+      else await this._richCommand(id, arg);
+      this._emit('selectionchange');
+    }
+
+    queryState(id) {
+      if (id === 'softWrap') return this.textOptions.wrap;
+      if (id === 'monospace') return this.textOptions.mono;
+      if (this.mode !== 'live' || !this._selectionInLive()) return id === 'block' ? null : false;
+      const anchor = window.getSelection().anchorNode;
+      switch (id) {
+        case 'block': return this._currentBlockType();
+        case 'code': return !!this._closest(anchor, 'code') && !this._closest(anchor, 'pre');
+        case 'link': return !!this._closest(anchor, 'a');
+        case 'task': return !!this._closest(anchor, 'li.task-list-item');
+        default:
+          if (!RICH_EXEC.has(id) || id === 'undo' || id === 'redo') return false;
+          try { return document.queryCommandState(id); } catch { return false; }
+      }
+    }
+
+    /* ---------- internals: rendering ---------- */
+    _emit(type, detail = {}) { this.dispatchEvent(new CustomEvent(type, { detail })); }
+
+    _renderSurface() {
+      const a = this.adapter;
+      this.host.dataset.format = a.id;
+      this.raw.hidden = this.mode !== 'edit';
+      this.preview.hidden = this.mode !== 'preview';
+      this.live.hidden = this.mode !== 'live';
+      if (this.mode === 'edit') {
+        this.raw.placeholder = `${this.placeholder} (${a.label} source)`;
+        if (this.raw.value !== this.source) this.raw.value = this.source;
+        this._autoGrow();
+      } else if (this.mode === 'preview') {
+        if (!this.source.trim()) this.preview.innerHTML = '<p class="empty-note">Nothing to preview yet.</p>';
+        else this.preview.innerHTML = a.render(this.source);
+        this.preview.tabIndex = -1;
+      } else {
+        if (a.plain) {
+          this.live.contentEditable = PLAINTEXT_ONLY ? 'plaintext-only' : 'true';
+          this.live.textContent = this.source;
+        } else {
+          this.live.contentEditable = 'true';
+          this.live.innerHTML = a.render(this.source) || '<p><br></p>';
+        }
+        this._savedRange = null;
+      }
+      this._updateEmpty();
+    }
+
+    _autoGrow() {
+      if (this.raw.hidden) return;
+      this.raw.style.height = 'auto';
+      this.raw.style.height = `${this.raw.scrollHeight + 2}px`;
+    }
+
+    _updateEmpty() {
+      const empty = this.adapter.plain
+        ? !this.live.textContent.trim()
+        : !this.live.textContent.replace(/​/g, '').trim() && !this.live.querySelector('hr, img, table, ul, ol, pre, blockquote, h1, h2, h3, h4, h5, h6, input');
+      this.live.classList.toggle('is-empty', empty);
+    }
+
+    _applyTextOptions() {
+      this.host.classList.toggle('no-wrap', !this.textOptions.wrap);
+      this.host.classList.toggle('mono', this.textOptions.mono);
+      this.raw.wrap = this.textOptions.wrap ? 'soft' : 'off';
+    }
+
+    _syncFromLive() {
+      clearTimeout(this._syncTimer);
+      if (!this._liveDirty) return;
+      this._liveDirty = false;
+      this.source = this.adapter.serialize(this.live, this.source);
+    }
+
+    _flush() { if (this.mode === 'live') this._syncFromLive(); }
+
+    _caretToEnd() {
+      const r = document.createRange();
+      r.selectNodeContents(this.live);
+      r.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+
+    /* ---------- internals: events ---------- */
+    _bindEvents() {
+      this.raw.addEventListener('input', () => {
+        this.source = this.raw.value;
+        this._autoGrow();
+        this._emit('change');
+      });
+      this.live.addEventListener('input', () => {
+        if (!this.adapter.plain && !this.live.firstElementChild && !this.live.textContent) this.live.innerHTML = '<p><br></p>';
+        this._liveDirty = true;
+        this._updateEmpty();
+        clearTimeout(this._syncTimer);
+        this._syncTimer = setTimeout(() => { this._syncFromLive(); this._emit('change'); }, 200);
+        this._emit('change');
+      });
+      for (const el of [this.raw, this.live]) el.addEventListener('paste', (e) => this._onPaste(e));
+
+      // Clicking empty space in the page focuses the editor (request 2).
+      this.host.addEventListener('mousedown', (e) => {
+        if (e.target === this.host && this.mode !== 'preview') { e.preventDefault(); this.focus({ end: true }); }
+      });
+
+      document.addEventListener('selectionchange', () => {
+        if (this._selectionInLive()) {
+          this._savedRange = window.getSelection().getRangeAt(0).cloneRange();
+          this._emit('selectionchange');
+        }
+      });
+      for (const ev of ['keyup', 'mouseup']) this.raw.addEventListener(ev, () => this._emit('selectionchange'));
+
+      this.raw.addEventListener('keydown', (e) => {
+        const mod = e.ctrlKey || e.metaKey;
+        if (e.key === 'Tab' && !mod && !e.altKey) {
+          e.preventDefault();
+          this._rawReplace(this.raw.selectionStart, this.raw.selectionEnd, '  ');
+        } else if (mod && !e.altKey && this.adapter.family !== 'text' && ['b', 'i'].includes(e.key.toLowerCase())) {
+          e.preventDefault();
+          this.exec(e.key.toLowerCase() === 'b' ? 'bold' : 'italic');
+        }
+      });
+    }
+
+    _onPaste(e) {
+      const cd = e.clipboardData || window.clipboardData;
+      if (!cd) return;
+      const html = cd.getData('text/html') || '';
+      const text = cd.getData('text/plain') || '';
+      if (!html && !text) return; // files etc. — let the browser decide
+      e.preventDefault();
+      const detected = detectFormat({ html, text });
+      const isFirstPaste = !this._pastedOnce && this.isEmpty();
+      this._pastedOnce = true;
+      const result = this.resolvePaste({ detected, current: this.format, html, text, isFirstPaste });
+      if (result.replace) {
+        const changed = result.format !== this.format;
+        this.setContent(result.source, result.format);
+        this.focus({ end: true });
+        if (changed) this._emit('notify', { message: `Detected <strong>${escapeHtml(getAdapter(result.format).label)}</strong> — format switched` });
+        return;
+      }
+      this._insertFragment(result.source);
+    }
+
+    /** Inserts source text (already in the current format) at the caret. */
+    _insertFragment(source) {
+      if (this.mode === 'edit') {
+        this._rawReplace(this.raw.selectionStart, this.raw.selectionEnd, source);
+        return;
+      }
+      if (this.mode !== 'live') return;
+      this._restoreSelection();
+      if (this.adapter.plain) { document.execCommand('insertText', false, source); return; }
+      const tmp = document.createElement('div');
+      tmp.innerHTML = this.adapter.render(source);
+      const only = tmp.children.length === 1 && tmp.firstElementChild.tagName === 'P' ? tmp.firstElementChild.innerHTML : tmp.innerHTML;
+      document.execCommand('insertHTML', false, only);
+    }
+
+    /* ---------- internals: rich (Preview/Edit) surface ---------- */
+    _selectionInLive() {
+      const sel = window.getSelection();
+      return !this.live.hidden && sel.rangeCount > 0 && this.live.contains(sel.anchorNode);
+    }
+
+    _restoreSelection() {
+      this.live.focus();
+      const sel = window.getSelection();
+      if (this._savedRange && this.live.contains(this._savedRange.startContainer)) {
+        sel.removeAllRanges();
+        sel.addRange(this._savedRange);
+      } else if (!this._selectionInLive()) {
+        this._caretToEnd();
+      }
+    }
+
+    _closest(node, selector) {
+      let el = node && (node.nodeType === 1 ? node : node.parentElement);
+      while (el && el !== this.live) {
+        if (el.matches(selector)) return el;
+        el = el.parentElement;
+      }
+      return null;
+    }
+
+    _currentBlockType() {
+      const node = window.getSelection().anchorNode;
+      if (this._closest(node, 'pre')) return 'pre';
+      if (this._closest(node, 'h1.doc-title')) return 'title';
+      if (this._closest(node, 'p.doc-subtitle')) return 'subtitle';
+      const h = this._closest(node, 'h1, h2, h3, h4, h5, h6');
+      if (h) return h.tagName.toLowerCase();
+      if (this._closest(node, 'blockquote')) return 'blockquote';
+      return 'p';
+    }
+
+    _afterRichEdit() {
+      this._liveDirty = true;
+      this._syncFromLive();
+      this._updateEmpty();
+      this._emit('change');
+    }
+
+    async _richCommand(id, arg) {
+      this._restoreSelection();
+      if (RICH_EXEC.has(id)) {
+        document.execCommand(id);
+        this._afterRichEdit();
+        return;
+      }
+      const sel = window.getSelection();
+      const selected = sel.rangeCount ? sel.toString() : '';
+      switch (id) {
+        case 'block': this._setBlock(arg); break;
+        case 'code': this._toggleInlineCode(); break;
+        case 'link': await this._toggleLink(); break;
+        case 'image': {
+          const url = await this.prompt('Insert image', 'Paste or type the image address.', 'https://');
+          if (!url || url === 'https://') return;
+          this._restoreSelection();
+          document.execCommand('insertHTML', false, `<img src="${escapeHtml(url)}" alt="">`);
+          break;
+        }
+        case 'task':
+          document.execCommand('insertHTML', false,
+            `<ul class="task-list"><li class="task-list-item"><input type="checkbox" disabled> ${escapeHtml(selected || 'Task')}</li></ul>`);
+          break;
+        case 'table':
+          document.execCommand('insertHTML', false,
+            '<table><thead><tr><th>Header</th><th>Header</th></tr></thead><tbody><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p><br></p>');
+          break;
+        case 'foreColor':
+        case 'hiliteColor':
+          document.execCommand('styleWithCSS', false, true);
+          document.execCommand(id, false, arg);
+          document.execCommand('styleWithCSS', false, false);
+          break;
+        default: return;
+      }
+      this._afterRichEdit();
+    }
+
+    _setBlock(type) {
+      const current = this._currentBlockType();
+      if (current === 'blockquote' && type !== 'blockquote') document.execCommand('outdent');
+      if (type === 'blockquote' && current === 'blockquote') { document.execCommand('outdent'); return; }
+      const tag = type === 'title' ? 'h1' : type === 'subtitle' ? 'p' : type;
+      document.execCommand('formatBlock', false, `<${tag}>`);
+      const block = this._closest(window.getSelection().anchorNode, 'p, h1, h2, h3, h4, h5, h6');
+      if (block) {
+        block.classList.remove('doc-title', 'doc-subtitle');
+        if (type === 'title') block.classList.add('doc-title');
+        if (type === 'subtitle') block.classList.add('doc-subtitle');
+        if (!block.classList.length) block.removeAttribute('class');
+      }
+    }
+
+    _toggleInlineCode() {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      if (this._closest(range.commonAncestorContainer, 'pre')) return;
+      const existing = this._closest(range.commonAncestorContainer, 'code');
+      if (existing) {
+        const text = document.createTextNode(existing.textContent);
+        existing.replaceWith(text);
+        const r = document.createRange();
+        r.selectNodeContents(text);
+        sel.removeAllRanges();
+        sel.addRange(r);
+      } else {
+        const text = range.collapsed ? 'code' : range.toString();
+        // Trailing zero-width space lets the caret leave the code span; serializers strip it.
+        document.execCommand('insertHTML', false, `<code>${escapeHtml(text)}</code>​`);
+      }
+    }
+
+    async _toggleLink() {
+      const rangeAtClick = this._savedRange ? this._savedRange.cloneRange() : null;
+      const anchor = rangeAtClick && this._closest(rangeAtClick.commonAncestorContainer, 'a');
+      if (anchor) {
+        const r = document.createRange();
+        r.selectNodeContents(anchor);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        document.execCommand('unlink');
+        return;
+      }
+      const url = await this.prompt('Insert link', 'Paste or type the web address.', 'https://');
+      if (!url || url === 'https://') return;
+      this._savedRange = rangeAtClick;
+      this._restoreSelection();
+      if (!rangeAtClick || rangeAtClick.collapsed) {
+        document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`);
+      } else {
+        document.execCommand('createLink', false, url);
+      }
+    }
+
+    /* ---------- internals: raw (Edit) surface ---------- */
+    // Uses execCommand('insertText') so the textarea's native undo stack keeps working.
+    _rawReplace(start, end, text, selStart = start + text.length, selEnd = selStart) {
+      const ta = this.raw;
+      ta.focus();
+      ta.setSelectionRange(start, end);
+      if (start === end && !text) return;
+      let ok = false;
+      try { ok = text ? document.execCommand('insertText', false, text) : document.execCommand('delete'); } catch { ok = false; }
+      if (!ok) {
+        ta.setRangeText(text, start, end, 'end');
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      ta.setSelectionRange(selStart, selEnd);
+    }
+
+    _rawWrap(before, after, placeholder) {
+      const ta = this.raw;
+      const { selectionStart: s, selectionEnd: e, value: v } = ta;
+      if (v.slice(s - before.length, s) === before && v.slice(e, e + after.length) === after) {
+        const inner = v.slice(s, e);
+        this._rawReplace(s - before.length, e + after.length, inner, s - before.length, s - before.length + inner.length);
+        return;
+      }
+      const inner = v.slice(s, e) || placeholder;
+      this._rawReplace(s, e, before + inner + after, s + before.length, s + before.length + inner.length);
+    }
+
+    /** Replaces the full lines touched by the selection with fn(lines) -> string. */
+    _rawLines(fn) {
+      const { selectionStart: s, selectionEnd: e, value: v } = this.raw;
+      const ls = v.lastIndexOf('\n', s - 1) + 1;
+      let le = v.indexOf('\n', e > s && v[e - 1] === '\n' ? e - 1 : e);
+      if (le < 0) le = v.length;
+      const out = fn(v.slice(ls, le).split('\n'));
+      this._rawReplace(ls, le, out, ls, ls + out.length);
+    }
+
+    _rawInsert(text) {
+      this._rawReplace(this.raw.selectionStart, this.raw.selectionEnd, text);
+    }
+
+    async _rawCommand(id, arg) {
+      const ta = this.raw;
+      ta.focus();
+      if (id === 'undo' || id === 'redo') { document.execCommand(id); return; }
+      const md = this.adapter.family === 'markdown';
+      const stripMd = (l) => l.replace(/^\s*(#{1,6}\s+|>\s?|[-*+]\s+\[[ xX]\]\s+|[-*+]\s+|\d+[.)]\s+)/, '');
+      const TAGS = { bold: 'strong', italic: 'em', underline: 'u', strikeThrough: 's', subscript: 'sub', superscript: 'sup', code: 'code' };
+      const MD_MARKS = { bold: '**', italic: '*', strikeThrough: '~~', code: '`' };
+
+      if (md && MD_MARKS[id]) return this._rawWrap(MD_MARKS[id], MD_MARKS[id], 'text');
+      if (!md && TAGS[id]) return this._rawWrap(`<${TAGS[id]}>`, `</${TAGS[id]}>`, 'text');
+
+      switch (id) {
+        case 'link': {
+          const url = await this.prompt('Insert link', 'Paste or type the web address.', 'https://');
+          if (!url || url === 'https://') return;
+          return md ? this._rawWrap('[', `](${url})`, 'link text') : this._rawWrap(`<a href="${escapeHtml(url)}">`, '</a>', 'link text');
+        }
+        case 'image': {
+          const url = await this.prompt('Insert image', 'Paste or type the image address.', 'https://');
+          if (!url || url === 'https://') return;
+          return this._rawInsert(md ? `![](${url})` : `<img src="${escapeHtml(url)}" alt="">`);
+        }
+        case 'insertUnorderedList':
+        case 'insertOrderedList':
+        case 'task':
+          if (md) {
+            return this._rawLines((lines) => lines.map((l, i) =>
+              (id === 'insertOrderedList' ? `${i + 1}. ` : id === 'task' ? '- [ ] ' : '- ') + stripMd(l)).join('\n'));
+          }
+          return this._rawLines((lines) => {
+            const tag = id === 'insertOrderedList' ? 'ol' : 'ul';
+            const cls = id === 'task' ? ' class="task-list"' : '';
+            const li = id === 'task' ? (l) => `  <li class="task-list-item"><input type="checkbox" disabled> ${l.trim()}</li>` : (l) => `  <li>${l.trim()}</li>`;
+            return `<${tag}${cls}>\n${lines.filter((l) => l.trim()).map(li).join('\n') || li('item')}\n</${tag}>`;
+          });
+        case 'insertHorizontalRule': return this._rawInsert(md ? '\n\n---\n\n' : '\n<hr>\n');
+        case 'table':
+          return this._rawInsert(md
+            ? '\n\n| Header | Header |\n| --- | --- |\n| Cell | Cell |\n\n'
+            : '\n<table>\n  <thead><tr><th>Header</th><th>Header</th></tr></thead>\n  <tbody><tr><td>Cell</td><td>Cell</td></tr></tbody>\n</table>\n');
+        case 'block':
+          if (md) {
+            if (arg === 'pre') return this._rawWrap('```\n', '\n```', 'code');
+            return this._rawLines((lines) => lines.map((l) => {
+              const t = l.replace(/^\s*(#{1,6}\s+|>\s?)/, '');
+              if (arg === 'blockquote') return `> ${t}`;
+              if (/^h[1-6]$/.test(arg)) return `${'#'.repeat(Number(arg[1]))} ${t}`;
+              return t;
+            }).join('\n'));
+          }
+          if (arg === 'title') return this._rawWrap('<h1 class="doc-title">', '</h1>', 'Title');
+          if (arg === 'subtitle') return this._rawWrap('<p class="doc-subtitle">', '</p>', 'Subtitle');
+          return this._rawWrap(`<${arg}>`, `</${arg}>`, 'text');
+        case 'justifyLeft':
+        case 'justifyCenter':
+        case 'justifyRight': {
+          const align = id.replace('justify', '').toLowerCase();
+          return this._rawWrap(`<p style="text-align: ${align}">`, '</p>', 'text');
+        }
+        case 'foreColor': return this._rawWrap(`<span style="color: ${arg}">`, '</span>', 'text');
+        case 'hiliteColor': return this._rawWrap(`<span style="background-color: ${arg}">`, '</span>', 'text');
+        case 'removeFormat': {
+          const { selectionStart: s, selectionEnd: e, value: v } = ta;
+          if (s === e) return;
+          const stripped = v.slice(s, e).replace(/<[^>]+>/g, '');
+          return this._rawReplace(s, e, stripped, s, s + stripped.length);
+        }
+        case 'prettify': {
+          const src = ta.value;
+          const body = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(src);
+          const pretty = hasHtmlShell(src) && body ? replaceBody(src, prettyHtml(body[1])) : prettyHtml(src);
+          return this._rawReplace(0, src.length, pretty, 0, 0);
+        }
+        default:
+      }
+    }
+
+    /* ---------- internals: Text format commands (both surfaces) ---------- */
+    _textCommand(id) {
+      if (id === 'softWrap') { this.textOptions.wrap = !this.textOptions.wrap; this._applyTextOptions(); this._autoGrow(); return; }
+      if (id === 'monospace') { this.textOptions.mono = !this.textOptions.mono; this._applyTextOptions(); return; }
+      const fns = {
+        upper: (t) => t.toUpperCase(),
+        lower: (t) => t.toLowerCase(),
+        titleCase: (t) => t.toLowerCase().replace(/(^|[\s\-_(\["'])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()),
+        trim: (t) => t.replace(/[ \t]+$/gm, ''),
+      };
+      const fn = fns[id];
+      if (!fn) return;
+      const whole = id === 'trim';
+      if (this.mode === 'edit') {
+        const ta = this.raw;
+        let s = ta.selectionStart;
+        let e = ta.selectionEnd;
+        if (whole || s === e) { s = 0; e = ta.value.length; }
+        const out = fn(ta.value.slice(s, e));
+        this._rawReplace(s, e, out, s, s + out.length);
+        return;
+      }
+      this._restoreSelection();
+      const sel = window.getSelection();
+      if (whole || sel.isCollapsed) {
+        const r = document.createRange();
+        r.selectNodeContents(this.live);
+        sel.removeAllRanges();
+        sel.addRange(r);
+      }
+      document.execCommand('insertText', false, fn(sel.toString()));
+      this._afterRichEdit();
+    }
+
+    /* ---------- internals: Preview commands ---------- */
+    async _previewCommand(id) {
+      if (id === 'selectAll') {
+        const r = document.createRange();
+        r.selectNodeContents(this.preview);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        return;
+      }
+      if (id === 'copy') {
+        const html = this.preview.innerHTML;
+        const text = this.preview.innerText;
+        try {
+          await navigator.clipboard.write([new ClipboardItem({
+            'text/html': new Blob([html], { type: 'text/html' }),
+            'text/plain': new Blob([text], { type: 'text/plain' }),
+          })]);
+        } catch {
+          await this._previewCommand('selectAll');
+          document.execCommand('copy');
+          window.getSelection().removeAllRanges();
+        }
+        this._emit('notify', { message: 'Copied formatted output to the clipboard' });
+      }
+    }
+  }
+
+  /* ==========================================================================
+     8. FormatToolbar
+     Builds the toolbar from the active adapter's `toolbar` spec and reflects
+     editor state. Item metadata (label, icon, kind) lives in TOOLBAR_ITEMS;
+     behavior lives in FragEditor.exec().
+     ========================================================================== */
+  const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const TOOLBAR_ITEMS = {
+    undo: { label: 'Undo (Ctrl+Z)', html: svg('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>') },
+    redo: { label: 'Redo (Ctrl+Y)', html: svg('<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>') },
+    block: { label: 'Text style', kind: 'select' },
+    bold: { label: 'Bold (Ctrl+B)', kind: 'toggle', html: '<span class="g-b">B</span>' },
+    italic: { label: 'Italic (Ctrl+I)', kind: 'toggle', html: '<span class="g-i">I</span>' },
+    underline: { label: 'Underline (Ctrl+U)', kind: 'toggle', html: '<span class="g-u">U</span>' },
+    strikeThrough: { label: 'Strikethrough', kind: 'toggle', html: '<span class="g-s">S</span>' },
+    subscript: { label: 'Subscript', kind: 'toggle', html: '<span class="g-sm">X₂</span>' },
+    superscript: { label: 'Superscript', kind: 'toggle', html: '<span class="g-sm">X²</span>' },
+    code: { label: 'Inline code', kind: 'toggle', html: svg('<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>') },
+    link: { label: 'Link', kind: 'toggle', html: svg('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>') },
+    image: { label: 'Image', html: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>') },
+    insertUnorderedList: { label: 'Bulleted list', kind: 'toggle', html: svg('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/>') },
+    insertOrderedList: { label: 'Numbered list', kind: 'toggle', html: svg('<path d="M10 6h10M10 12h10M10 18h10"/><path d="M4 4h1v4M4 8h2" stroke-width="1.6"/><path d="M4 14.5a1 1 0 0 1 2 .3c0 .9-2 1.6-2 3.2h2" stroke-width="1.6"/>') },
+    task: { label: 'Task list', kind: 'toggle', html: svg('<rect x="3" y="5" width="6" height="6" rx="1"/><path d="m4.6 8 1.2 1.2L8 7"/><path d="M12 8h9M12 16h9"/><rect x="3" y="13" width="6" height="6" rx="1"/>') },
+    indent: { label: 'Indent', html: svg('<path d="M3 5h18M11 12h10M3 19h18"/><path d="m3 9 4 3-4 3"/>') },
+    outdent: { label: 'Outdent', html: svg('<path d="M3 5h18M11 12h10M3 19h18"/><path d="M7 9l-4 3 4 3"/>') },
+    justifyLeft: { label: 'Align left', kind: 'toggle', html: svg('<path d="M3 6h18M3 12h12M3 18h16"/>') },
+    justifyCenter: { label: 'Align center', kind: 'toggle', html: svg('<path d="M3 6h18M6 12h12M4 18h16"/>') },
+    justifyRight: { label: 'Align right', kind: 'toggle', html: svg('<path d="M3 6h18M9 12h12M5 18h16"/>') },
+    insertHorizontalRule: { label: 'Horizontal line', html: svg('<path d="M3 12h18"/><path d="M8 7h8M8 17h8" opacity=".35"/>') },
+    table: { label: 'Table', html: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M10 4v16"/>') },
+    removeFormat: { label: 'Clear formatting', html: svg('<path d="M4 7V5h12v2M10 5 7 19"/><path d="m15 14 6 6M21 14l-6 6"/>') },
+    foreColor: { label: 'Text color', kind: 'color', initial: '#e0455b', html: '<span class="g-color">A<span class="swatch"></span></span>' },
+    hiliteColor: { label: 'Highlight color', kind: 'color', initial: '#ffe066', html: `<span class="g-color">${svg('<path d="m9 11-6 6v3h3l6-6"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/>')}<span class="swatch"></span></span>` },
+    prettify: { label: 'Prettify HTML', html: '<span class="g-sm">{ }</span>' },
+    softWrap: { label: 'Soft wrap', kind: 'toggle', html: svg('<path d="M3 6h18M3 12h15a3 3 0 0 1 0 6h-4"/><path d="m16 16-2 2 2 2"/><path d="M3 18h7"/>') },
+    monospace: { label: 'Monospace font', kind: 'toggle', html: '<span class="g-sm" style="font-family: var(--mono)">M</span>' },
+    upper: { label: 'UPPERCASE (selection or all)', html: '<span class="g-sm">AA</span>' },
+    lower: { label: 'lowercase (selection or all)', html: '<span class="g-sm">aa</span>' },
+    titleCase: { label: 'Title Case (selection or all)', html: '<span class="g-sm">Aa</span>' },
+    trim: { label: 'Trim trailing whitespace', html: svg('<path d="M4 6h10M4 12h14M4 18h8"/><path d="m17 15 4 4M21 15l-4 4"/>') },
+    copy: { label: 'Copy formatted output', html: svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>') },
+    selectAll: { label: 'Select all', html: svg('<path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4"/><rect x="8" y="8" width="8" height="8" rx="1"/>') },
+  };
+  const PREVIEW_TOOLBAR = [['copy', 'selectAll']];
+
+  class FormatToolbar {
+    constructor(el, editor) {
+      this.el = el;
+      this.editor = editor;
+      this._raf = 0;
+      el.addEventListener('mousedown', (e) => {
+        // Keep the editor's selection when clicking toolbar buttons.
+        if (e.target.closest('button.tb-btn')) e.preventDefault();
+      });
+      for (const ev of ['formatchange', 'modechange']) editor.addEventListener(ev, () => this.render());
+      for (const ev of ['selectionchange', 'change']) editor.addEventListener(ev, () => this.scheduleRefresh());
+      this.render();
+    }
+
+    render() {
+      const ed = this.editor;
+      const adapter = ed.adapter;
+      const groups = ed.getMode() === 'preview' ? PREVIEW_TOOLBAR : adapter.toolbar;
+      this.el.textContent = '';
+      let first = true;
+      for (const group of groups) {
+        const ids = group.filter((id) => ed.supports(id));
+        if (!ids.length) continue;
+        if (!first) this.el.insertAdjacentHTML('beforeend', '<div class="tb-sep"></div>');
+        first = false;
+        const g = document.createElement('div');
+        g.className = 'tb-group';
+        for (const id of ids) g.appendChild(this._item(id, adapter));
+        this.el.appendChild(g);
+      }
+      if (ed.getMode() === 'preview') {
+        this.el.insertAdjacentHTML('beforeend', '<span class="tb-hint">Preview is read-only. Switch to Edit or Preview/Edit to change the document.</span>');
+      }
+      this.refresh();
+    }
+
+    _item(id, adapter) {
+      const meta = TOOLBAR_ITEMS[id];
+      if (meta.kind === 'select') {
+        const sel = document.createElement('select');
+        sel.className = 'tb-select';
+        sel.dataset.item = id;
+        sel.title = meta.label;
+        sel.setAttribute('aria-label', meta.label);
+        for (const [value, label] of adapter.blockOptions) sel.add(new Option(label, value));
+        sel.addEventListener('change', () => this.editor.exec('block', sel.value));
+        return sel;
+      }
+      if (meta.kind === 'color') {
+        const label = document.createElement('label');
+        label.className = 'tb-btn tb-color';
+        label.title = meta.label;
+        label.innerHTML = meta.html;
+        const input = document.createElement('input');
+        input.type = 'color';
+        input.value = meta.initial;
+        input.setAttribute('aria-label', meta.label);
+        label.querySelector('.swatch').style.background = meta.initial;
+        input.addEventListener('input', () => { label.querySelector('.swatch').style.background = input.value; });
+        input.addEventListener('change', () => this.editor.exec(id, input.value));
+        label.appendChild(input);
+        return label;
+      }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tb-btn';
+      btn.dataset.item = id;
+      btn.title = meta.label;
+      btn.setAttribute('aria-label', meta.label);
+      if (meta.kind === 'toggle') btn.setAttribute('aria-pressed', 'false');
+      btn.innerHTML = meta.html;
+      btn.addEventListener('click', () => this.editor.exec(id));
+      return btn;
+    }
+
+    scheduleRefresh() {
+      cancelAnimationFrame(this._raf);
+      this._raf = requestAnimationFrame(() => this.refresh());
+    }
+
+    refresh() {
+      this.el.querySelectorAll('[aria-pressed]').forEach((btn) => {
+        btn.setAttribute('aria-pressed', this.editor.queryState(btn.dataset.item) ? 'true' : 'false');
+      });
+      const block = this.el.querySelector('select[data-item="block"]');
+      const state = this.editor.queryState('block');
+      if (block && state && Array.from(block.options).some((o) => o.value === state)) block.value = state;
+    }
+  }
+
+  /* ==========================================================================
+     9. SaveFolder
+     The save folder is whatever the user picks. Browsers never expose a
+     folder's absolute path, so we persist:
+       - the FileSystemDirectoryHandle in IndexedDB (Chromium, all OSes), and
+       - its display name in localStorage (every browser).
+     Browsers without showDirectoryPicker (Firefox, Safari) fall back to
+     downloading the file.
+     ========================================================================== */
+  class SaveFolder {
+    constructor({ onChange } = {}) {
+      this.supported = 'showDirectoryPicker' in window;
+      this.handle = null;
+      this.name = safeStorage.get(LS_FOLDER_NAME) || '';
+      this.onChange = onChange || (() => {});
+    }
+
+    async init() {
+      if (this.supported) {
+        try { this.handle = (await idbGet(IDB_FOLDER_KEY)) || null; } catch { this.handle = null; }
+        if (this.handle) this.name = this.handle.name;
+        else this.name = '';
+      }
+      this.onChange(this);
+    }
+
+    get label() {
+      if (!this.supported) return 'Browser downloads';
+      return this.name ? `${this.name}/` : 'Choose save folder…';
+    }
+
+    /** Opens the folder picker. Returns the handle, or null if cancelled. */
+    async pick() {
+      if (!this.supported) return null;
+      try {
+        const opts = { id: 'ctf-save-folder', mode: 'readwrite' };
+        if (this.handle) opts.startIn = this.handle;
+        const picked = await window.showDirectoryPicker(opts);
+        this.handle = picked;
+        this.name = picked.name;
+        await idbSet(IDB_FOLDER_KEY, picked).catch(() => {});
+        safeStorage.set(LS_FOLDER_NAME, picked.name);
+        this.onChange(this);
+        return picked;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return null;
+        throw err;
+      }
+    }
+
+    /** Returns a handle with readwrite permission, asking the user if needed. */
+    async getWritableHandle() {
+      if (!this.handle) return this.pick();
+      const opts = { mode: 'readwrite' };
+      if ((await this.handle.queryPermission(opts)) === 'granted') return this.handle;
+      if ((await this.handle.requestPermission(opts)) === 'granted') return this.handle;
+      return null;
+    }
+  }
+
+  /* ==========================================================================
+     10. APP SHELL
+     Wires the editor, toolbar, doc bar, dialogs and save/new together.
+     ========================================================================== */
+  const titleInput = $('docTitle');
+  const formatSelect = $('formatSelect');
+  const btnSave = $('btnSave');
+  const folderLink = $('folderLink');
+
+  let dirty = false;
+  let saving = false;
+  let lastSavedName = '';
+  let titleBeforeFocus = DEFAULT_TITLE;
+
+  /* ---- Dialogs + toast ---- */
   const dialog = $('dialog');
 
   function openDialog({ title, message, okLabel = 'OK', danger = false, input = null }) {
@@ -845,9 +2034,8 @@
       if (input !== null) { field.focus(); field.select(); } else { ok.focus(); }
     });
   }
-
   const confirmDialog = (title, message, okLabel, danger = false) => openDialog({ title, message, okLabel, danger });
-  const promptDialog = (title, message, initial = '') => openDialog({ title, message, okLabel: 'Insert', input: initial });
+  const promptDialog = (title, message, initial = '') => openDialog({ title, message: escapeHtml(message), okLabel: 'Insert', input: initial });
 
   let toastTimer;
   function toast(message, isError = false) {
@@ -859,111 +2047,173 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 3000);
   }
 
-  /* ============================================================
-     Folder handle persistence (IndexedDB)
-     ============================================================ */
-  const DB_NAME = 'capture-the-frag';
-  const STORE = 'handles';
+  /* ---- Editor + toolbar ---- */
+  const editor = new FragEditor($('editorHost'), { format: DEFAULT_FORMAT, mode: DEFAULT_MODE, prompt: promptDialog });
+  new FormatToolbar($('toolbar'), editor);
 
-  function idb(mode, fn) {
-    return new Promise((resolve, reject) => {
-      const open = indexedDB.open(DB_NAME, 1);
-      open.onupgradeneeded = () => open.result.createObjectStore(STORE);
-      open.onerror = () => reject(open.error);
-      open.onsuccess = () => {
-        const db = open.result;
-        const tx = db.transaction(STORE, mode);
-        const req = fn(tx.objectStore(STORE));
-        tx.oncomplete = () => { db.close(); resolve(req && req.result); };
-        tx.onerror = () => { db.close(); reject(tx.error); };
-      };
+  for (const f of Object.values(FORMATS)) formatSelect.add(new Option(f.label, f.id));
+
+  /* ---- Doc bar: dirty state, word count, format, mode ---- */
+  function setDirty(value) {
+    dirty = value;
+    $('saveDot').classList.toggle('dirty', dirty);
+    $('saveState').textContent = dirty ? 'Unsaved changes' : (lastSavedName ? `Saved as ${lastSavedName}` : 'No changes');
+  }
+
+  function updateMeta() {
+    const { words } = editor.stats();
+    $('wordCount').textContent = `${words} word${words === 1 ? '' : 's'}`;
+  }
+
+  function syncFormatUi() {
+    const a = editor.adapter;
+    formatSelect.value = a.id;
+    $('extChip').textContent = a.ext;
+    $('extChip').title = `The ${a.ext} extension is added automatically.`;
+  }
+
+  function syncModeUi() {
+    document.querySelectorAll('#modeSwitch [data-mode]').forEach((b) => {
+      b.setAttribute('aria-checked', b.dataset.mode === editor.getMode() ? 'true' : 'false');
     });
   }
-  const idbGet = (key) => idb('readonly', (s) => s.get(key));
-  const idbSet = (key, val) => idb('readwrite', (s) => s.put(val, key));
-  const idbDel = (key) => idb('readwrite', (s) => s.delete(key));
 
-  async function ensurePermission(handle) {
-    const opts = { mode: 'readwrite' };
-    if ((await handle.queryPermission(opts)) === 'granted') return true;
-    return (await handle.requestPermission(opts)) === 'granted';
+  editor.addEventListener('change', () => { setDirty(true); updateMeta(); });
+  editor.addEventListener('formatchange', syncFormatUi);
+  editor.addEventListener('modechange', syncModeUi);
+  editor.addEventListener('notify', (e) => toast(e.detail.message));
+
+  formatSelect.addEventListener('change', async () => {
+    const from = editor.getFormat();
+    const to = formatSelect.value;
+    if (editor.setFormat(to)) return;
+    const keep = await confirmDialog(
+      'Conversion not available yet',
+      `Converting <strong>${escapeHtml(FORMATS[from].label)}</strong> to <strong>${escapeHtml(FORMATS[to].label)}</strong> isn't implemented yet. Keep the content as-is and treat it as ${escapeHtml(FORMATS[to].label)}?`,
+      'Keep as-is'
+    );
+    if (keep) editor.setFormat(to, { convert: false });
+    else formatSelect.value = from;
+  });
+
+  document.querySelectorAll('#modeSwitch [data-mode]').forEach((b) => {
+    b.addEventListener('click', () => editor.setMode(b.dataset.mode));
+  });
+
+  /* ---- Title textbox ---- */
+  const INVALID_CHARS = /[\\/:*?"<>|\u0000-\u001f]/g;
+
+  function cleanTitle(value) {
+    return value
+      .replace(INVALID_CHARS, '')
+      .trim()
+      .replace(/\.(md|markdown|html?|txt)$/i, '')
+      .replace(/[. ]+$/, '')
+      .trim();
+  }
+  const currentTitle = () => cleanTitle(titleInput.value) || titleBeforeFocus || DEFAULT_TITLE;
+  const fileName = () => `${currentTitle()}${editor.adapter.ext}`;
+
+  titleInput.addEventListener('focus', () => {
+    titleBeforeFocus = cleanTitle(titleInput.value) || titleBeforeFocus || DEFAULT_TITLE;
+    titleInput.select();
+  });
+  titleInput.addEventListener('input', () => {
+    if (INVALID_CHARS.test(titleInput.value)) {
+      const pos = titleInput.selectionStart;
+      const before = titleInput.value.length;
+      titleInput.value = titleInput.value.replace(INVALID_CHARS, '');
+      const p = Math.max(0, pos - (before - titleInput.value.length));
+      titleInput.setSelectionRange(p, p);
+    }
+    INVALID_CHARS.lastIndex = 0;
+  });
+  titleInput.addEventListener('blur', () => {
+    const value = cleanTitle(titleInput.value);
+    titleInput.value = value || titleBeforeFocus;
+    if (value && value !== titleBeforeFocus) setDirty(true);
+    titleBeforeFocus = titleInput.value;
+  });
+  titleInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); editor.focus(); }
+    if (e.key === 'Escape') { e.preventDefault(); titleInput.value = titleBeforeFocus; editor.focus(); }
+  });
+
+  /* ---- Save folder (request 1) ---- */
+  const folder = new SaveFolder({
+    onChange: (f) => {
+      $('folderName').textContent = f.label;
+      folderLink.disabled = !f.supported;
+      folderLink.title = f.supported
+        ? `${f.name ? `Saving to “${f.name}”. ` : ''}Click to choose a different save folder. (Browsers only reveal a folder's name, not its full path.)`
+        : "This browser can't pick folders, so files download to your browser's downloads folder.";
+    },
+  });
+  if (!folder.supported) $('unsupported').classList.add('show');
+  folderLink.addEventListener('click', async () => {
+    try {
+      const picked = await folder.pick();
+      if (picked) toast(`Saving to <code>${escapeHtml(picked.name)}/</code>`);
+    } catch (err) {
+      toast(`Couldn't open folder: ${escapeHtml(err.message || String(err))}`, true);
+    }
+  });
+
+  /* ---- Save / New ---- */
+  function downloadFile(name, content, mime) {
+    const url = URL.createObjectURL(new Blob([content], { type: `${mime};charset=utf-8` }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  async function getAppFolder() {
-    let handle = null;
-    try { handle = await idbGet('appFolder'); } catch { handle = null; }
-
-    if (handle) {
-      if (!(await ensurePermission(handle))) {
-        toast('Saving needs permission to edit the app folder.', true);
-        return null;
-      }
-      try {
-        // Confirm the folder still exists.
-        await handle.getDirectoryHandle(SAVE_FOLDER, { create: true });
-        return handle;
-      } catch {
-        await idbDel('appFolder').catch(() => {});
-      }
-    }
-
-    const picked = await window.showDirectoryPicker({ id: 'ctf-app-folder', mode: 'readwrite' });
-    let looksRight = false;
-    try { await picked.getFileHandle('index.html'); looksRight = true; } catch { /* not found */ }
-    if (!looksRight) {
-      const useAnyway = await confirmDialog(
-        'Is this the app folder?',
-        `<code>${escapeHtml(picked.name)}</code> doesn't contain <code>index.html</code>. Documents are saved to <code>${SAVE_FOLDER}/</code> inside the Capture the Frag folder. Use this folder anyway?`,
-        'Use folder'
-      );
-      if (!useAnyway) return null;
-    }
-    await idbSet('appFolder', picked).catch(() => {});
-    return picked;
-  }
-
-  /* ============================================================
-     Save / New
-     ============================================================ */
   async function save() {
     if (saving) return;
-    if (!fsSupported) {
-      toast('Saving needs Chrome or Edge.', true);
-      return;
-    }
     if (document.activeElement === titleInput) titleInput.blur();
     saving = true;
     btnSave.disabled = true;
     try {
-      const appFolder = await getAppFolder();
-      if (!appFolder) return;
-      const folder = await appFolder.getDirectoryHandle(SAVE_FOLDER, { create: true });
+      const adapter = editor.adapter;
       const name = fileName();
+      const content = adapter.fileContent(editor.getContent(), currentTitle());
+
+      if (!folder.supported) {
+        downloadFile(name, content, adapter.mime);
+        lastSavedName = name;
+        setDirty(false);
+        toast(`Downloaded <code>${escapeHtml(name)}</code>`);
+        return;
+      }
+
+      const dir = await folder.getWritableHandle();
+      if (!dir) { toast('Saving needs permission to edit the save folder.', true); return; }
 
       let exists = false;
-      try { await folder.getFileHandle(name); exists = true; }
-      catch (err) { if (err.name !== 'NotFoundError') throw err; }
-
+      try { await dir.getFileHandle(name); exists = true; } catch (err) { if (err.name !== 'NotFoundError') throw err; }
       if (exists) {
         const overwrite = await confirmDialog(
           'Replace existing document?',
-          `<code>${escapeHtml(name)}</code> already exists in <code>${SAVE_FOLDER}/</code>. Do you want to overwrite it?`,
+          `<code>${escapeHtml(name)}</code> already exists in <code>${escapeHtml(dir.name)}/</code>. Do you want to overwrite it?`,
           'Overwrite',
           true
         );
         if (!overwrite) return;
       }
 
-      const file = await folder.getFileHandle(name, { create: true });
+      const file = await dir.getFileHandle(name, { create: true });
       const writable = await file.createWritable();
-      await writable.write(toMarkdown());
+      await writable.write(content);
       await writable.close();
 
       lastSavedName = name;
       setDirty(false);
-      toast(`Saved <code>${SAVE_FOLDER}/${escapeHtml(name)}</code>`);
+      toast(`Saved <code>${escapeHtml(dir.name)}/${escapeHtml(name)}</code>`);
     } catch (err) {
-      if (err && err.name === 'AbortError') return; // picker cancelled
+      if (err && err.name === 'AbortError') return;
       console.error(err);
       toast(`Couldn't save: ${escapeHtml(err && err.message ? err.message : String(err))}`, true);
     } finally {
@@ -974,32 +2224,58 @@
 
   async function newDocument() {
     if (dirty) {
-      const discard = await confirmDialog(
-        'Discard changes?',
-        'This document has unsaved changes. Start a new document and discard them?',
-        'Discard',
-        true
-      );
+      const discard = await confirmDialog('Discard changes?', 'This document has unsaved changes. Start a new document and discard them?', 'Discard', true);
       if (!discard) return;
     }
-    editor.innerHTML = '<p><br></p>';
+    editor.clear();
     titleInput.value = DEFAULT_TITLE;
     titleBeforeFocus = DEFAULT_TITLE;
     lastSavedName = '';
-    savedRange = null;
+    syncFormatUi();
     setDirty(false);
-    updateEditorMeta();
+    updateMeta();
     editor.focus();
   }
 
   btnSave.addEventListener('click', save);
   $('btnNew').addEventListener('click', newDocument);
 
-  // Exposed for debugging and tests.
-  window.captureTheFrag = { toMarkdown };
+  /* ---- Keyboard shortcuts ---- */
+  document.addEventListener('keydown', (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && !e.altKey && e.key.toLowerCase() === 's') { e.preventDefault(); save(); }
+    if (mod && e.altKey && ['Digit1', 'Digit2', 'Digit3'].includes(e.code)) {
+      e.preventDefault();
+      editor.setMode(MODES[Number(e.code.slice(-1)) - 1]);
+    }
+  });
 
-  updateEditorMeta();
+  window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  // Keep the sticky toolbar right under the app bar.
+  const setAppbarHeight = () => document.documentElement.style.setProperty('--appbar-h', `${$('appbar').offsetHeight}px`);
+  window.addEventListener('resize', setAppbarHeight);
+  setAppbarHeight();
+
+  /* ---- Debug / test hooks ---- */
+  window.captureTheFrag = {
+    editor,
+    FORMATS,
+    FormatConverter,
+    detectFormat,
+    markdownToHtml,
+    htmlToMarkdown,
+    sanitizeHtml,
+    normalizeGoogleDocsHtml,
+    toMarkdown: () => FormatConverter.convert(editor.getContent(), editor.getFormat(), 'markdown') ?? editor.getContent(),
+  };
+
+  /* ---- Boot ---- */
+  syncFormatUi();
+  syncModeUi();
+  updateMeta();
   setDirty(false);
+  folder.init();
 })();
 </script>
 </body>
